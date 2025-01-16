@@ -8,14 +8,14 @@
 import UIKit
 
 final class ProfileViewController: UIViewController {
-
+    
     private var avatarImageView: UIImageView = {
         let imageView = UIImageView()
         
         imageView.translatesAutoresizingMaskIntoConstraints = false
         imageView.image = UIImage(named: "avatar")
         imageView.layer.cornerRadius = 35
-
+        
         return imageView
     }()
     
@@ -50,19 +50,19 @@ final class ProfileViewController: UIViewController {
     }()
     
     private lazy var logoutButton: UIButton = {
-            let button = UIButton.systemButton(
-                with: UIImage(named: "logout_button")!,
-                target: self,
-                action: #selector(didTapLogoutButton)
-            )
-            button.translatesAutoresizingMaskIntoConstraints = false
-            button.tintColor = .ypRed
-            return button
-        }()
+        let button = UIButton.systemButton(
+            with: UIImage(named: "logout_button")!,
+            target: self,
+            action: #selector(didTapLogoutButton)
+        )
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.tintColor = .ypRed
+        return button
+    }()
     
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        
         setupContent()
         setupConstraints()
     }
@@ -109,7 +109,7 @@ final class ProfileViewController: UIViewController {
     }
     
     @objc private func didTapLogoutButton() {
-            print("logout_button")
-        }
+        print("logout_button")
+    }
 }
 
