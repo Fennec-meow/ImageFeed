@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="23503" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="RIu-Hc-6ci">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="23504" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="RIu-Hc-6ci">
     <device id="retina6_12" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="23505"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="23506"/>
         <capability name="Named colors" minToolsVersion="9.0"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -21,7 +21,7 @@
                                 <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                                 <color key="backgroundColor" name="YP Background"/>
                                 <prototypes>
-                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" selectionStyle="blue" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="ImagesListCell" rowHeight="234" id="n9L-0E-BRu" customClass="ImagesListCell" customModule="ImageFeed" customModuleProvider="target">
+                                    <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" selectionStyle="none" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="ImagesListCell" rowHeight="234" id="n9L-0E-BRu" customClass="ImagesListCell" customModule="ImageFeed" customModuleProvider="target">
                                         <rect key="frame" x="0.0" y="50" width="393" height="234"/>
                                         <autoresizingMask key="autoresizingMask"/>
                                         <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="n9L-0E-BRu" id="iMw-vB-vU3">
@@ -29,7 +29,7 @@
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
                                                 <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" image="0" translatesAutoresizingMaskIntoConstraints="NO" id="r3b-hX-hrH">
-                                                    <rect key="frame" x="16" y="4" width="361" height="226"/>
+                                                    <rect key="frame" x="16" y="16" width="361" height="214"/>
                                                     <userDefinedRuntimeAttributes>
                                                         <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
                                                             <integer key="value" value="16"/>
@@ -38,7 +38,7 @@
                                                     </userDefinedRuntimeAttributes>
                                                 </imageView>
                                                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="iLO-ta-c0C" userLabel="Like Button">
-                                                    <rect key="frame" x="333" y="4" width="44" height="44"/>
+                                                    <rect key="frame" x="333" y="16" width="44" height="44"/>
                                                     <constraints>
                                                         <constraint firstAttribute="width" constant="44" id="Lho-oS-ubh"/>
                                                         <constraint firstAttribute="height" constant="44" id="wKn-KT-QYM"/>
@@ -59,7 +59,7 @@
                                                 <constraint firstItem="r3b-hX-hrH" firstAttribute="trailing" secondItem="iLO-ta-c0C" secondAttribute="trailing" id="X2L-eW-Lqe"/>
                                                 <constraint firstItem="qZZ-Dd-Oci" firstAttribute="leading" secondItem="r3b-hX-hrH" secondAttribute="leading" constant="8" id="XCt-iN-n0l"/>
                                                 <constraint firstItem="r3b-hX-hrH" firstAttribute="bottom" secondItem="qZZ-Dd-Oci" secondAttribute="bottom" constant="8" id="bxw-IK-iGg"/>
-                                                <constraint firstItem="r3b-hX-hrH" firstAttribute="top" secondItem="iMw-vB-vU3" secondAttribute="top" constant="4" id="e9K-ob-DwK"/>
+                                                <constraint firstItem="r3b-hX-hrH" firstAttribute="top" secondItem="iMw-vB-vU3" secondAttribute="top" constant="16" id="e9K-ob-DwK"/>
                                                 <constraint firstItem="r3b-hX-hrH" firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="qZZ-Dd-Oci" secondAttribute="trailing" constant="8" id="lvb-oo-Aye"/>
                                                 <constraint firstAttribute="bottom" secondItem="r3b-hX-hrH" secondAttribute="bottom" constant="4" id="njH-VX-fbH"/>
                                                 <constraint firstItem="iLO-ta-c0C" firstAttribute="top" secondItem="r3b-hX-hrH" secondAttribute="top" id="usu-PH-khw"/>
@@ -207,17 +207,14 @@
         <!--Navigation Controller-->
         <scene sceneID="eCG-dE-6as">
             <objects>
-                <navigationController automaticallyAdjustsScrollViewInsets="NO" id="it4-7d-e41" sceneMemberID="viewController">
+                <navigationController automaticallyAdjustsScrollViewInsets="NO" navigationBarHidden="YES" id="it4-7d-e41" sceneMemberID="viewController">
                     <tabBarItem key="tabBarItem" title="" image="tab_editorial_active" id="MuI-BM-nHR"/>
                     <toolbarItems/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="Svm-ia-03D">
-                        <rect key="frame" x="0.0" y="59" width="393" height="44"/>
                         <autoresizingMask key="autoresizingMask"/>
                         <color key="tintColor" name="YP White"/>
                         <color key="barTintColor" name="YP White"/>
-                        <navigationBarAppearance key="standardAppearance">
-                            <color key="backgroundColor" name="YP Black"/>
-                        </navigationBarAppearance>
+                        <navigationBarAppearance key="standardAppearance"/>
                     </navigationBar>
                     <nil name="viewControllers"/>
                     <connections>
