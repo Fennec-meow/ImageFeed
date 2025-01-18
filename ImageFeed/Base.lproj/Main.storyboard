@@ -29,7 +29,7 @@
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
                                                 <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" image="0" translatesAutoresizingMaskIntoConstraints="NO" id="r3b-hX-hrH">
-                                                    <rect key="frame" x="16" y="16" width="361" height="214"/>
+                                                    <rect key="frame" x="16" y="4" width="361" height="226"/>
                                                     <userDefinedRuntimeAttributes>
                                                         <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
                                                             <integer key="value" value="16"/>
@@ -38,7 +38,7 @@
                                                     </userDefinedRuntimeAttributes>
                                                 </imageView>
                                                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="iLO-ta-c0C" userLabel="Like Button">
-                                                    <rect key="frame" x="333" y="16" width="44" height="44"/>
+                                                    <rect key="frame" x="333" y="4" width="44" height="44"/>
                                                     <constraints>
                                                         <constraint firstAttribute="width" constant="44" id="Lho-oS-ubh"/>
                                                         <constraint firstAttribute="height" constant="44" id="wKn-KT-QYM"/>
@@ -59,7 +59,7 @@
                                                 <constraint firstItem="r3b-hX-hrH" firstAttribute="trailing" secondItem="iLO-ta-c0C" secondAttribute="trailing" id="X2L-eW-Lqe"/>
                                                 <constraint firstItem="qZZ-Dd-Oci" firstAttribute="leading" secondItem="r3b-hX-hrH" secondAttribute="leading" constant="8" id="XCt-iN-n0l"/>
                                                 <constraint firstItem="r3b-hX-hrH" firstAttribute="bottom" secondItem="qZZ-Dd-Oci" secondAttribute="bottom" constant="8" id="bxw-IK-iGg"/>
-                                                <constraint firstItem="r3b-hX-hrH" firstAttribute="top" secondItem="iMw-vB-vU3" secondAttribute="top" constant="16" id="e9K-ob-DwK"/>
+                                                <constraint firstItem="r3b-hX-hrH" firstAttribute="top" secondItem="iMw-vB-vU3" secondAttribute="top" constant="4" id="e9K-ob-DwK"/>
                                                 <constraint firstItem="r3b-hX-hrH" firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="qZZ-Dd-Oci" secondAttribute="trailing" constant="8" id="lvb-oo-Aye"/>
                                                 <constraint firstAttribute="bottom" secondItem="r3b-hX-hrH" secondAttribute="bottom" constant="4" id="njH-VX-fbH"/>
                                                 <constraint firstItem="iLO-ta-c0C" firstAttribute="top" secondItem="r3b-hX-hrH" secondAttribute="top" id="usu-PH-khw"/>
