@@ -28,7 +28,7 @@ final class SingleImageViewController: UIViewController {
         imageView.image = image
         imageView.frame.size = image.size
         rescaleAndCenterImageInScrollView(image: image)
-       
+        
         scrollView.minimumZoomScale = 0.1
         scrollView.maximumZoomScale = 1.25
     }
@@ -39,7 +39,7 @@ final class SingleImageViewController: UIViewController {
     
     @IBAction private func didTapSaveButton() {
         guard let image else { return }
-     
+        
         let share = UIActivityViewController(
             activityItems: [image],
             applicationActivities: nil
