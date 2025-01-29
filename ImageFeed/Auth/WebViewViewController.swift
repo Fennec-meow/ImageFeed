@@ -10,7 +10,6 @@ import WebKit
 
 fileprivate let UnsplashAuthorizeURLString = "https://unsplash.com/oauth/authorize"
 
-
 protocol WebViewViewControllerDelegate: AnyObject {
     func webViewViewController(_ vc: WebViewViewController, didAuthenticateWithCode code: String)
     func webViewViewControllerDidCancel(_ vc: WebViewViewController)
@@ -40,22 +39,6 @@ final class WebViewViewController: UIViewController {
         webView.load(request)
         
         updateProgress()
-    }
-    
-    func makeOAuthTokenRequest(code: String) -> URLRequest {
-        let baseURL = URL(string: "https://unsplash.com")!
-        let url = URL(
-            string: "/oauth/token"
-            + "?client_id=\(accessKey)"         // Используем знак ?, чтобы начать перечисление параметров запроса
-            + "&&client_secret=\(secretKey)"    // Используем &&, чтобы добавить дополнительные параметры
-            + "&&redirect_uri=\(redirectURI)"
-            + "&&code=\(code)"
-            + "&&grant_type=authorization_code",
-            relativeTo: baseURL                           // Опираемся на основной или базовый URL, которые содержат схему и имя хоста
-        )!
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-        return request
     }
     
     @IBAction private func didTapBackButton(_ sender: Any?) {
@@ -91,6 +74,22 @@ final class WebViewViewController: UIViewController {
         progressView.progress = Float(webView.estimatedProgress)
         progressView.isHidden = fabs(webView.estimatedProgress - 1.0) <= 0.0001
     }
+}
+
+func makeOAuthTokenRequest(code: String) -> URLRequest {
+    let baseURL = URL(string: "https://unsplash.com")!
+    let url = URL(
+        string: "/oauth/token"
+        + "?client_id=\(accessKey)"         // Используем знак ?, чтобы начать перечисление параметров запроса
+        + "&&client_secret=\(secretKey)"    // Используем &&, чтобы добавить дополнительные параметры
+        + "&&redirect_uri=\(redirectURI)"
+        + "&&code=\(code)"
+        + "&&grant_type=authorization_code",
+        relativeTo: baseURL                           // Опираемся на основной или базовый URL, которые содержат схему и имя хоста
+    )!
+    var request = URLRequest(url: url)
+    request.httpMethod = "POST"
+    return request
 }
 
 extension WebViewViewController: WKNavigationDelegate {
