@@ -107,14 +107,19 @@
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="p5F-ng-lb4">
+                            <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="p5F-ng-lb4">
                                 <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                                 <subviews>
-                                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" image="0" translatesAutoresizingMaskIntoConstraints="NO" id="yoR-JP-6ru">
-                                        <rect key="frame" x="8" y="8" width="297" height="501"/>
-                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="0" translatesAutoresizingMaskIntoConstraints="NO" id="yoR-JP-6ru">
+                                        <rect key="frame" x="0.0" y="0.0" width="1600" height="1059"/>
                                     </imageView>
                                 </subviews>
+                                <constraints>
+                                    <constraint firstItem="yoR-JP-6ru" firstAttribute="leading" secondItem="p5F-ng-lb4" secondAttribute="leading" id="0OH-GX-AGD"/>
+                                    <constraint firstItem="yoR-JP-6ru" firstAttribute="firstBaseline" secondItem="p5F-ng-lb4" secondAttribute="top" id="WkT-YH-978"/>
+                                    <constraint firstAttribute="trailing" secondItem="yoR-JP-6ru" secondAttribute="trailing" id="gO4-pp-9mg"/>
+                                    <constraint firstAttribute="bottom" secondItem="yoR-JP-6ru" secondAttribute="bottom" id="whM-5K-hcP"/>
+                                </constraints>
                                 <viewLayoutGuide key="contentLayoutGuide" id="9bj-Wv-IC4"/>
                                 <viewLayoutGuide key="frameLayoutGuide" id="y0G-qD-8W5"/>
                                 <connections>
@@ -150,13 +155,13 @@
                         <color key="backgroundColor" name="YP Black"/>
                         <constraints>
                             <constraint firstItem="B46-Hw-7xH" firstAttribute="leading" secondItem="ysW-zu-YLy" secondAttribute="leading" constant="8" id="6Nz-W9-Uox"/>
-                            <constraint firstItem="p5F-ng-lb4" firstAttribute="leading" secondItem="ysW-zu-YLy" secondAttribute="leading" id="6tn-k2-9En"/>
+                            <constraint firstItem="p5F-ng-lb4" firstAttribute="leading" secondItem="rDG-qW-jUA" secondAttribute="leading" id="H2a-kO-7mr"/>
+                            <constraint firstAttribute="trailing" secondItem="p5F-ng-lb4" secondAttribute="trailing" id="KTV-A7-dfK"/>
                             <constraint firstItem="ysW-zu-YLy" firstAttribute="bottom" secondItem="0Bm-S4-MTm" secondAttribute="bottom" constant="17" id="LPl-9E-pcj"/>
+                            <constraint firstAttribute="bottom" secondItem="p5F-ng-lb4" secondAttribute="bottom" id="RP9-wY-7AJ"/>
                             <constraint firstItem="B46-Hw-7xH" firstAttribute="top" secondItem="ysW-zu-YLy" secondAttribute="top" constant="8" id="UPU-J3-C12"/>
-                            <constraint firstItem="p5F-ng-lb4" firstAttribute="top" secondItem="rDG-qW-jUA" secondAttribute="top" constant="20" symbolic="YES" id="XRC-a5-MEa"/>
-                            <constraint firstItem="p5F-ng-lb4" firstAttribute="trailing" secondItem="ysW-zu-YLy" secondAttribute="trailing" id="kOH-Kn-4jv"/>
+                            <constraint firstItem="p5F-ng-lb4" firstAttribute="top" secondItem="rDG-qW-jUA" secondAttribute="top" id="mel-b9-abQ"/>
                             <constraint firstItem="0Bm-S4-MTm" firstAttribute="centerX" secondItem="rDG-qW-jUA" secondAttribute="centerX" id="owo-mt-yEJ"/>
-                            <constraint firstAttribute="bottom" secondItem="p5F-ng-lb4" secondAttribute="bottom" constant="20" symbolic="YES" id="xcv-2U-oAD"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" id="Y2k-A5-lZZ"/>
@@ -167,7 +172,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="ZXm-mB-NEe" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1828" y="1812"/>
+            <point key="canvasLocation" x="1826.7175572519084" y="1811.9718309859156"/>
         </scene>
         <!--Auth View Controller-->
         <scene sceneID="Iao-Rh-14m">
@@ -195,7 +200,7 @@
                                     <userDefinedRuntimeAttribute type="boolean" keyPath="layer.masksToBounds" value="YES"/>
                                 </userDefinedRuntimeAttributes>
                                 <connections>
-                                    <segue destination="KeZ-dF-rY5" kind="presentation" identifier="ShowWebView" modalPresentationStyle="fullScreen" modalTransitionStyle="coverVertical" id="1Ru-Z9-Gav"/>
+                                    <segue destination="KeZ-dF-rY5" kind="show" identifier="ShowWebView" id="1Ru-Z9-Gav"/>
                                 </connections>
                             </button>
                             <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="Logo_of_Unsplash" translatesAutoresizingMaskIntoConstraints="NO" id="UZV-AG-p5p">
@@ -234,7 +239,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <wkWebView contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="E0R-pd-RUI">
-                                <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
+                                <rect key="frame" x="0.0" y="44" width="393" height="808"/>
                                 <color key="backgroundColor" name="YP White"/>
                                 <wkWebViewConfiguration key="configuration">
                                     <audiovisualMediaTypes key="mediaTypesRequiringUserActionForPlayback" none="YES"/>
@@ -242,7 +247,7 @@
                                 </wkWebViewConfiguration>
                             </wkWebView>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="cWk-aZ-FiD">
-                                <rect key="frame" x="0.0" y="0.0" width="64" height="44"/>
+                                <rect key="frame" x="0.0" y="44" width="64" height="44"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="64" id="6nj-gP-IWG"/>
                                     <constraint firstAttribute="height" constant="44" id="sDV-i0-2CJ"/>
@@ -254,7 +259,7 @@
                                 </connections>
                             </button>
                             <progressView opaque="NO" contentMode="scaleToFill" verticalHuggingPriority="750" progress="0.5" translatesAutoresizingMaskIntoConstraints="NO" id="vKP-9Y-29R">
-                                <rect key="frame" x="0.0" y="44" width="393" height="4"/>
+                                <rect key="frame" x="0.0" y="88" width="393" height="4"/>
                                 <color key="progressTintColor" name="YP Black"/>
                             </progressView>
                         </subviews>
@@ -316,7 +321,7 @@
         <!--Tab Bar Controller-->
         <scene sceneID="8Lu-Hl-87b">
             <objects>
-                <tabBarController storyboardIdentifier="TabBarViewController" id="RIu-Hc-6ci" sceneMemberID="viewController">
+                <tabBarController storyboardIdentifier="TabBarViewController" useStoryboardIdentifierAsRestorationIdentifier="YES" id="RIu-Hc-6ci" sceneMemberID="viewController">
                     <tabBar key="tabBar" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="0Lo-lu-izU">
                         <rect key="frame" x="0.0" y="0.0" width="393" height="49"/>
                         <autoresizingMask key="autoresizingMask"/>

@@ -40,13 +40,22 @@ final class SplashViewController: UIViewController {
     // MARK: - Private methods
     
     private func switchToTabBarController() {
-        guard let window = UIApplication.shared.windows.first else { fatalError("Invalid Configuration") }
-        let tabBarController = UIStoryboard(name: "Main", bundle: .main)
-            .instantiateViewController(withIdentifier: "TabBarViewController")
-        window.rootViewController = tabBarController
+        DispatchQueue.main.async {
+            guard let window = UIApplication.shared.windows.first else {
+                fatalError("Invalid Configuration")
+            }
+            
+            let storyboard = UIStoryboard(name: "Main", bundle: nil)
+            
+            guard let tabBarController = storyboard.instantiateViewController(withIdentifier: "TabBarViewController") as? UITabBarController else {
+                fatalError("Unable to instantiate TabBarViewController")
+            }
+            
+            window.rootViewController = tabBarController
+            window.makeKeyAndVisible()
+        }
     }
 }
-
 // MARK: - Prepare for segue
 
 extension SplashViewController {

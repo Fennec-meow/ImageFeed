@@ -13,23 +13,21 @@ final class OAuth2Service {
     }
     
     func fetchOAuthToken(_ code: String, completion: @escaping (Result<String, Error>) -> Void) {
-        var components = URLComponents(string: "https://unsplash.com/oauth/token")
+        var components = URLComponents(string: "https://unsplash.com/oauth/token")!
         
-        if let url = components?.url {
+        components.queryItems = [
+                    URLQueryItem(name: "client_id", value: accessKey),
+                    URLQueryItem(name: "client_secret", value: secretKey),
+                    URLQueryItem(name: "redirect_uri", value: redirectURI),
+                    URLQueryItem(name: "code", value: code),
+                    URLQueryItem(name: "grant_type", value: "authorization_code")
+                ]
+        
+        if let url = components.url {
             var request = URLRequest(url: url)
             
             request.httpMethod = "POST"
-            
-            let parameters: [String: Any] = [
-                "client_id": accessKey,
-                "client_secret": secretKey,
-                "redirect_uri": redirectURI,
-                "code": code,
-                "grant_type": "authorization_code"
-            ]
-            
-            request.httpBody = try? JSONSerialization.data(withJSONObject: parameters)
-            
+                        
             let task = URLSession.shared.dataTask(with: request) { data, response, error in
                 if let error = error {
                     print(error)
