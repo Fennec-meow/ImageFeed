@@ -9,6 +9,8 @@ import UIKit
 
 final class ProfileViewController: UIViewController {
     
+    // MARK: - Аватарка
+    
     private var avatarImageView: UIImageView = {
         let imageView = UIImageView()
         
@@ -18,6 +20,8 @@ final class ProfileViewController: UIViewController {
         
         return imageView
     }()
+    
+    // MARK: - Имя пользователя
     
     private var nameLabel: UILabel = {
         let label = UILabel()
@@ -29,6 +33,8 @@ final class ProfileViewController: UIViewController {
         return label
     }()
     
+    // MARK: - Личная ссылка на пользователя
+    
     private var loginNameLabel: UILabel = {
         let label = UILabel()
         
@@ -39,6 +45,8 @@ final class ProfileViewController: UIViewController {
         return label
     }()
     
+    // MARK: - Статус пользователя
+    
     private var descriptionLabel: UILabel = {
         let label = UILabel()
         
@@ -48,6 +56,8 @@ final class ProfileViewController: UIViewController {
         label.textColor = .ypWhite
         return label
     }()
+    
+    // MARK: - Кнопка выхода из личного кабинета
     
     private lazy var logoutButton: UIButton = {
         let button = UIButton.systemButton(
@@ -60,12 +70,16 @@ final class ProfileViewController: UIViewController {
         return button
     }()
     
+    // MARK: - viewDidLoad
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
         setupContent()
         setupConstraints()
     }
+    
+    // MARK: - Констрейнты
     
     private func setupContent() {
         view.addSubview(avatarImageView)
@@ -99,6 +113,8 @@ final class ProfileViewController: UIViewController {
             logoutButton.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -16)
         ]
         
+        // MARK: - Активация констрейнтов
+        
         NSLayoutConstraint.activate(
             avatarImageViewConstraints +
             nameLabelConstraints +
@@ -107,6 +123,8 @@ final class ProfileViewController: UIViewController {
             logoutButtonConstraints
         )
     }
+    
+    // MARK: - Действия кнопки выхода из личного кабинета
     
     @objc private func didTapLogoutButton() {
         print("logout_button")
