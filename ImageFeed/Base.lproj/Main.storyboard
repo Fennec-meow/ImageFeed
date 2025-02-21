@@ -247,7 +247,7 @@
                                 </wkWebViewConfiguration>
                             </wkWebView>
                             <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="cWk-aZ-FiD">
-                                <rect key="frame" x="0.0" y="30" width="64" height="44"/>
+                                <rect key="frame" x="0.0" y="0.0" width="64" height="44"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="64" id="6nj-gP-IWG"/>
                                     <constraint firstAttribute="height" constant="44" id="sDV-i0-2CJ"/>
@@ -259,14 +259,15 @@
                                 </connections>
                             </button>
                             <progressView opaque="NO" contentMode="scaleToFill" verticalHuggingPriority="750" progress="0.5" translatesAutoresizingMaskIntoConstraints="NO" id="vKP-9Y-29R">
-                                <rect key="frame" x="0.0" y="74" width="402" height="4"/>
+                                <rect key="frame" x="0.0" y="44" width="402" height="4"/>
                                 <color key="progressTintColor" name="YP Black"/>
                             </progressView>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="uIF-Is-UGj"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
-                            <constraint firstItem="cWk-aZ-FiD" firstAttribute="top" secondItem="E0R-pd-RUI" secondAttribute="top" constant="30" id="6GJ-Yk-adp"/>
+                            <constraint firstItem="vKP-9Y-29R" firstAttribute="top" secondItem="uIF-Is-UGj" secondAttribute="top" constant="40" id="4nf-aI-CM8"/>
+                            <constraint firstItem="cWk-aZ-FiD" firstAttribute="top" secondItem="uIF-Is-UGj" secondAttribute="top" id="6GJ-Yk-adp"/>
                             <constraint firstItem="vKP-9Y-29R" firstAttribute="trailing" secondItem="uIF-Is-UGj" secondAttribute="trailing" id="CDO-TQ-TXm"/>
                             <constraint firstItem="E0R-pd-RUI" firstAttribute="top" secondItem="Hlg-H3-c7x" secondAttribute="top" id="MOm-t8-GUF"/>
                             <constraint firstItem="cWk-aZ-FiD" firstAttribute="leading" secondItem="uIF-Is-UGj" secondAttribute="leading" id="N5e-lW-vPJ"/>
@@ -274,7 +275,6 @@
                             <constraint firstAttribute="bottom" secondItem="E0R-pd-RUI" secondAttribute="bottom" id="ajY-uI-n7d"/>
                             <constraint firstItem="E0R-pd-RUI" firstAttribute="leading" secondItem="Hlg-H3-c7x" secondAttribute="leading" id="iDR-mT-nZN"/>
                             <constraint firstItem="E0R-pd-RUI" firstAttribute="trailing" secondItem="Hlg-H3-c7x" secondAttribute="trailing" id="qr0-1d-ECJ"/>
-                            <constraint firstItem="vKP-9Y-29R" firstAttribute="top" secondItem="cWk-aZ-FiD" secondAttribute="bottom" id="zNF-aJ-SEx"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" id="mKh-nF-vhL"/>

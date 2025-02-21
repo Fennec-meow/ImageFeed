@@ -11,7 +11,7 @@ final class SplashViewController: UIViewController {
     // MARK: - Vars
     
     private let showAuthenticationScreenSegueIdentifier = "ShowAuthentication"
-    private let showTableSegueIdentifier = "ShowTable"
+    //    private let showTableSegueIdentifier = "ShowWebView"
     
     // MARK: - OAuth2Service
     
@@ -45,7 +45,16 @@ final class SplashViewController: UIViewController {
     // MARK: - Private methods
     
     private func switchToTabBarController() {
-        DispatchQueue.main.async {
+        
+        // Убедитесь, что вы находитесь на главном потоке
+            guard Thread.isMainThread else {
+                // Если не на главном потоке, использовать dispatch
+                DispatchQueue.main.async {
+                    self.switchToTabBarController()
+                }
+                return
+            }
+        
             guard let window = UIApplication.shared.windows.first else {
                 fatalError("Invalid Configuration")
             }
@@ -60,7 +69,7 @@ final class SplashViewController: UIViewController {
             window.makeKeyAndVisible()
         }
     }
-}
+
 // MARK: - Prepare for segue
 
 extension SplashViewController {
@@ -92,10 +101,13 @@ extension SplashViewController: AuthViewControllerDelegate {
         oauth2Service.fetchOAuthToken(code) { [weak self] result in
             guard let self = self else { return }
             switch result {
-            case .success:
+            case .success(let accessToken):
+                // Сохраняем токен в хранилище
+                self.oauth2TokenStorage.token = accessToken
+                // Переход к TabBarController
                 self.switchToTabBarController()
             case .failure:
-                
+                print("Failed to fetch token")
                 break
             }
         }

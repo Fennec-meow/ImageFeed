@@ -7,6 +7,8 @@
 
 import Foundation
 
+// MARK: - class OAuth2Service
+
 final class OAuth2Service {
     
     // MARK: - Синглтон
@@ -20,28 +22,11 @@ final class OAuth2Service {
         case codeError, decodeError
     }
     
-    // MARK: - makeOAuthTokenRequest
-    
-    func makeOAuthTokenRequest(code: String) -> URLRequest {
-        let baseURL = URL(string: "https://unsplash.com")
-        let url = URL(
-            string: "/oauth/token"
-            + "?client_id=\(Constants.accessKey)"         // Используем знак ?, чтобы начать перечисление параметров запроса
-            + "&&client_secret=\(Constants.secretKey)"    // Используем &&, чтобы добавить дополнительные параметры
-            + "&&redirect_uri=\(Constants.redirectURI)"
-            + "&&code=\(code)"
-            + "&&grant_type=authorization_code",
-            relativeTo: baseURL                           // Опираемся на основной или базовый URL, которые содержат схему и имя хоста
-        )!
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-        return request
-    }
-    
     // MARK: - fetchOAuthToken
     
     func fetchOAuthToken(_ code: String, completion: @escaping (Result<String, Error>) -> Void) {
-        var components = URLComponents(string: "https://unsplash.com/oauth/token")!
+        
+        guard var components = URLComponents(string: "https://unsplash.com/oauth/token") else { return }
         
         components.queryItems = [
             URLQueryItem(name: "client_id", value: Constants.accessKey),
@@ -52,14 +37,18 @@ final class OAuth2Service {
         ]
         
         if let url = components.url {
-            var request = URLRequest(url: url)
+            print("URL: \(url)")
             
+            var request = URLRequest(url: url)
             request.httpMethod = "POST"
+            print("Request: \(request)")
             
             let task = URLSession.shared.dataTask(with: request) { data, response, error in
                 if let error = error {
-                    print(error)
-                    completion(.failure(error))
+                    print("Error: \(error)")
+                    DispatchQueue.main.async {
+                        completion(.failure(error))
+                    }
                     return
                 }
                 
@@ -73,30 +62,44 @@ final class OAuth2Service {
                         if let data = data, let responseBody = String(data: data, encoding: .utf8) {
                             print("Response Body: \(responseBody)")
                         }
-                        completion(.failure(OAuthError.codeError))
+                        DispatchQueue.main.async {
+                            completion(.failure(OAuthError.codeError))
+                        }
                         return
                     }
+                    
                 }
                 
                 guard let data = data else {
-                    print("No data received")
-                    completion(.failure(OAuthError.decodeError))
+                    print("No data returned")
+                    DispatchQueue.main.async {
+                        completion(.failure(OAuthError.decodeError))
+                    }
                     return
                 }
                 
+                
                 do {
                     let json = try JSONDecoder().decode(OAuthTokenResponseBody.self, from: data)
-                    completion(.success(json.accessToken))
+                    OAuth2TokenStorage().token = json.accessToken
+                    print("Access Token: \(json.accessToken)")
+                    DispatchQueue.main.async {
+                        completion(.success(json.accessToken))
+                    }
                 } catch {
                     print("Decoding error: \(error)")
-                    completion(.failure(OAuthError.decodeError))
+                    DispatchQueue.main.async {
+                        completion(.failure(OAuthError.decodeError))
+                    }
                 }
             }
-            
             task.resume()
         }
     }
 }
+
+
+// MARK: - extension URLSession
 
 extension URLSession {
     func data(

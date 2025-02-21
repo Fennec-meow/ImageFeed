@@ -7,6 +7,8 @@
 
 import UIKit
 
+// MARK: - class ProfileViewController
+
 final class ProfileViewController: UIViewController {
     
     // MARK: - Аватарка
@@ -60,14 +62,26 @@ final class ProfileViewController: UIViewController {
     // MARK: - Кнопка выхода из личного кабинета
     
     private lazy var logoutButton: UIButton = {
-        let button = UIButton.systemButton(
-            with: UIImage(named: "logout_button")!,
-            target: self,
-            action: #selector(didTapLogoutButton)
-        )
-        button.translatesAutoresizingMaskIntoConstraints = false
-        button.tintColor = .ypRed
-        return button
+        // Безопасно получаем изображение
+        if let image = UIImage(named: "logout_button") {
+            let button = UIButton.systemButton(
+                with: image,
+                target: self,
+                action: #selector(didTapLogoutButton)
+            )
+            button.translatesAutoresizingMaskIntoConstraints = false
+            button.tintColor = .ypRed
+            return button
+        } else {
+            // Обработайте случай, если изображение не найдено
+            print("Изображение logout_button не найдено")
+            
+            // Возвращаем кнопку без изображения
+            let button = UIButton(type: .system)
+            button.translatesAutoresizingMaskIntoConstraints = false
+            button.tintColor = .ypRed
+            return button
+        }
     }()
     
     // MARK: - viewDidLoad

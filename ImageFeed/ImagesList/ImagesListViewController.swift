@@ -7,6 +7,8 @@
 
 import UIKit
 
+// MARK: - class ImagesListViewController
+
 final class ImagesListViewController: UIViewController {
     
     // MARK: - IBOutlet UITableView
