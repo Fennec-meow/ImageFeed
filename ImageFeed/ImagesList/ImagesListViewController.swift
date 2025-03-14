@@ -11,19 +11,19 @@ import UIKit
 
 final class ImagesListViewController: UIViewController {
     
-    // MARK: - IBOutlet UITableView
+    // MARK: IBOutlet UITableView
     
     @IBOutlet private var tableView: UITableView!
     
-    // MARK: - SegueIdentifier
+    // MARK: SegueIdentifier
     
     private let showSingleImageSegueIdentifier = "ShowSingleImage"
     
-    // MARK: - photosName
+    // MARK: photosName
     
     private let photosName: [String] = Array(0..<20).map{ "\($0)" }
     
-    // MARK: - dateFormatter
+    // MARK: dateFormatter
     
     private lazy var dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
@@ -32,7 +32,7 @@ final class ImagesListViewController: UIViewController {
         return formatter
     }()
     
-    // MARK: - viewDidLoad
+    // MARK: viewDidLoad
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -41,7 +41,7 @@ final class ImagesListViewController: UIViewController {
         tableView.contentInset = UIEdgeInsets(top: 12, left: 0, bottom: 12, right: 0)
     }
     
-    // MARK: - Метод prepare
+    // MARK: Метод prepare
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == showSingleImageSegueIdentifier {

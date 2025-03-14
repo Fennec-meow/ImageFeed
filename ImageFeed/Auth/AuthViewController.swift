@@ -6,6 +6,7 @@
 //
 
 import UIKit
+//import ProgressHUD
 
 // MARK: - protocol AuthViewControllerDelegate
 
@@ -17,19 +18,19 @@ protocol AuthViewControllerDelegate: AnyObject {
 
 final class AuthViewController: UIViewController {
     
-    // MARK: - Идентификатор сигвея
+    // MARK: Идентификатор сигвея
     
     private let showWebViewSegueIdentifier = "ShowWebView"
     
-    // MARK: - delegate: AuthViewControllerDelegate
+    // MARK: delegate: AuthViewControllerDelegate
     
     weak var delegate: AuthViewControllerDelegate?
     
-    // MARK: - Кнопка старта
+    // MARK: Кнопка старта
     
     @IBOutlet weak var startButton: UIButton!
     
-    // MARK: - viewDidLoad
+    // MARK: viewDidLoad
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -38,7 +39,7 @@ final class AuthViewController: UIViewController {
         startButton.titleLabel?.font = UIFont(name: "YSDisplay-Bold", size: 17)
     }
     
-    // MARK: - Метод prepare
+    // MARK: Метод prepare
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == showWebViewSegueIdentifier {
@@ -51,13 +52,13 @@ final class AuthViewController: UIViewController {
         }
     }
     
-    // MARK: - Конфигурация кнопки
+    // MARK: Конфигурация кнопки
     
     private func configureBackButton() {
         navigationController?.navigationBar.backIndicatorImage = UIImage(named: "nav_back_button")
         navigationController?.navigationBar.backIndicatorTransitionMaskImage = UIImage(named: "nav_back_button")
         navigationItem.backBarButtonItem = UIBarButtonItem(title: "", style: .plain, target: nil, action: nil)
-        navigationItem.backBarButtonItem?.tintColor = UIColor(named: "ypBlack") 
+        navigationItem.backBarButtonItem?.tintColor = UIColor(named: "ypBlack")
     }
 }
 
@@ -66,9 +67,11 @@ final class AuthViewController: UIViewController {
 extension AuthViewController: WebViewViewControllerDelegate {
     func webViewViewController(_ vc: WebViewViewController, didAuthenticateWithCode code: String) {
         delegate?.authViewController(self, didAuthenticateWithCode: code)
+        UIBlockingProgressHUD.show()
     }
     
     func webViewViewControllerDidCancel(_ vc: WebViewViewController) {
         dismiss(animated: true)
+        UIBlockingProgressHUD.dismiss()
     }
 }
