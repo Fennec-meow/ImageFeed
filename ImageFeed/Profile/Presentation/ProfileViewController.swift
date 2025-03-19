@@ -9,143 +9,54 @@ import UIKit
 import Foundation
 import Kingfisher
 
-// MARK: - class ProfileViewController
+// MARK: - ProfileViewController
 
 final class ProfileViewController: UIViewController {
     
     // MARK: ProfileService
     
     let profileService = ProfileService.shared
-    let splashViewController = SplashViewController()
-    private let swiftKeychainWrapper = SwiftKeychainWrapper()
+    let profileImageService = ProfileImageService.shared
     
-    // MARK: NSObjectProtocol
+    // MARK: Public Property
+    
+    let splashViewController = SplashViewController()
+    
+    var username: String? = String()
+    
+    // MARK: Private Property
+    
+    private let swiftKeychainWrapper = SwiftKeychainWrapper()
     
     private var profileImageServiceObserver: NSObjectProtocol?
     
     // MARK: UI Components
-
-        private lazy var ui: UI = {
-            let ui = createUI()
-            layout(ui)
-            return ui
-        }()
-
     
-//    // MARK: Аватарка
-//    
-//    private var avatarImageView: UIImageView = {
-//        let imageView = UIImageView()
-//        
-//        imageView.translatesAutoresizingMaskIntoConstraints = false
-//        imageView.image = UIImage(named: "avatar")
-//        imageView.layer.cornerRadius = 35
-//        
-//        return imageView
-//    }()
-//    
-//    // MARK: Имя пользователя
-//    
-//    private var nameLabel: UILabel = {
-//        let label = UILabel()
-//        
-//        label.translatesAutoresizingMaskIntoConstraints = false
-//        label.text = "Екатерина Новикова"
-//        label.font = UIFont(name: "YSDisplay-Bold", size: 23)
-//        label.textColor = .ypWhite
-//        return label
-//    }()
-//    
-//    // MARK: Личная ссылка на пользователя
-//    
-//    private var loginNameLabel: UILabel = {
-//        let label = UILabel()
-//        
-//        label.translatesAutoresizingMaskIntoConstraints = false
-//        label.text = "@ekaterina_nov"
-//        label.font = UIFont(name: "YSDisplay-Medium", size: 13)
-//        label.textColor = .ypGray
-//        return label
-//    }()
-//    
-//    // MARK: Статус пользователя
-//    
-//    private var descriptionLabel: UILabel = {
-//        let label = UILabel()
-//        
-//        label.translatesAutoresizingMaskIntoConstraints = false
-//        label.text = "Hello, world!"
-//        label.font = UIFont(name: "YSDisplay-Medium", size: 13)
-//        label.textColor = .ypWhite
-//        return label
-//    }()
-//    
-//    // MARK: Кнопка выхода из личного кабинета
-//    
-//    private lazy var logoutButton: UIButton = {
-//        let button = UIButton.systemButton(
-//            with: UIImage(named: "logout_button") ?? UIImage(),
-//            target: self,
-//            action: #selector(didTapLogoutButton)
-//        )
-//        button.translatesAutoresizingMaskIntoConstraints = false
-//        button.tintColor = .ypRed
-//        return button
-//    }()
-//    
-    // MARK: viewDidLoad
+    private lazy var ui: UI = {
+        let ui = createUI()
+        layout(ui)
+        return ui
+    }()
+    
+    // MARK: Lifecycle
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
-//        profileImageServiceObserver = NotificationCenter.default
-//            .addObserver(
-//                forName: ProfileImageService.didChangeNotification,
-//                object: nil,
-//                queue: .main
-//            ) { [weak self] _ in
-//                guard let self = self else { return }
-//                self.updateAvatar(notification: .init(name: .init("ProfileImageService.didChangeNotification")))                              // 6
-//            }
         updateAvatar(notification: .init(name: .init("ProfileImageService.didChangeNotification")))
         
-        let token = swiftKeychainWrapper.getToken() ?? "nil"
-        
-        
-       // updateProfileDetails(token: token)
         updateProfileDetails()
-//        setupContentProfile()
-//        setupConstraintsProfile()
         view.backgroundColor = .ypBlack
+        getAvatar()
     }
-  
-    
-//    @objc
     
     // MARK: updateProfileDetails
-    /*
-    private func updateProfileDetails(token: String) {
-        // Запрос профиля с использованием токена
-        profileService.fetchProfile(token) { result in
-            switch result {
-            case .success(let profile):
-                DispatchQueue.main.async {
-                    // Обновление UI на главном потоке
-                    self.nameLabel.text = profile.name
-                    self.loginNameLabel.text = profile.loginName
-                    self.descriptionLabel.text = profile.bio
-                }
-                print(profile)
-            case .failure(let error):
-                print("Ошибка при выборке профиля: \(error.localizedDescription)")
-            }
-        }
-    }
-     */
+    
     private func updateProfileDetails() {
         guard let profile = profileService.profile else {
             return
         }
+        self.username = profile.userName
         ui.nameLabel.text = profile.name
         ui.loginNameLabel.text = profile.loginName
         ui.descriptionLabel.text = profile.bio
@@ -164,7 +75,7 @@ final class ProfileViewController: UIViewController {
         addObserver()
     }
     
-//     Определяем деструктор
+    //     Определяем деструктор
     deinit {
         removeObserver()
     }
@@ -184,21 +95,6 @@ final class ProfileViewController: UIViewController {
             object: nil)
     }
     
-//    @objc private func updateAvatar(notification: Notification) {
-//        DispatchQueue.main.async {
-//            guard
-//                let profileImageURL = ProfileImageService.shared.avatarURL,
-//                let url = URL(string: profileImageURL)
-//            else { return }
-//            let processor = RoundCornerImageProcessor(
-//                cornerRadius: 35,
-//                backgroundColor: .clear
-//            )
-//            self.avatarImageView.kf.indicatorType = .activity
-//            self.avatarImageView.kf.setImage(with: url)
-//        }
-//    }
-    
     @objc private func updateAvatar(notification: Notification) {
         DispatchQueue.main.async {
             guard
@@ -210,31 +106,59 @@ final class ProfileViewController: UIViewController {
                 backgroundColor: .clear
             )
             self.ui.avatarImageView.kf.indicatorType = .activity
-            self.ui.avatarImageView.kf.setImage(with: url)
+            self.ui.avatarImageView.kf.setImage(
+                with: url,
+                placeholder: nil,
+                options: [
+                    .processor(processor)
+                ])
         }
-    }
-    
-    // MARK: Действия кнопки выхода из личного кабинета
-    
-    @objc private func didTapLogoutButton() {
-        print("logout_button \n")
     }
 }
 
-// MARK: - Констрейнты
+// MARK: - Private Methods
+
+private extension ProfileViewController {
+    func getAvatar() {
+        profileImageService.fetchProfileImageURL(username ?? String()) { [weak self] result in
+            guard let self else { return }
+            switch result {
+            case .success(let stringUrl):
+                guard
+                    let url = URL(string: stringUrl)
+                else { return }
+                DispatchQueue.main.async {
+                    let processor = RoundCornerImageProcessor(
+                        cornerRadius: 35,
+                        backgroundColor: .clear
+                    )
+                    
+                    self.ui.avatarImageView.kf.indicatorType = .activity
+                    self.ui.avatarImageView.kf.setImage(
+                        with: url,
+                        placeholder: UIImage(named: "person.circle"),
+                        options: [
+                            .processor(processor),
+                            .scaleFactor(UIScreen.main.scale),
+                            .transition(.fade(1)),
+                            .cacheOriginalImage
+                        ])
+                }
+            case let .failure(error):
+                print("getAvatar: \(error) when loading avatar \n.")
+            }
+        }
+    }
+}
+
+// MARK: - UI Configuring
 
 private extension ProfileViewController {
     
-    // MARK: UI компоненты
+    // MARK: UI components
     
     struct UI {
-                
         
-//        let avatarImageView = UIImageView
-//        let nameLabel = UILabel
-//        let loginNameLabel = UILabel
-//        let descriptionLabel = UILabel
-//        let logoutButton = UIButton
         let avatarImageView: UIImageView
         let nameLabel: UILabel
         let loginNameLabel: UILabel
@@ -242,7 +166,7 @@ private extension ProfileViewController {
         let logoutButton: UIButton
     }
     
-    // MARK: тут будут создаваться UI компоненты
+    // MARK: Creating UI components
     
     func createUI() -> UI {
         
@@ -250,24 +174,28 @@ private extension ProfileViewController {
         avatarImageView.translatesAutoresizingMaskIntoConstraints = false
         avatarImageView.image = UIImage(named: "avatar")
         avatarImageView.layer.cornerRadius = 35
+        view.addSubview(avatarImageView)
         
         let nameLabel = UILabel()
         nameLabel.translatesAutoresizingMaskIntoConstraints = false
         nameLabel.text = "Екатерина Новикова"
         nameLabel.font = UIFont(name: "YSDisplay-Bold", size: 23)
         nameLabel.textColor = .ypWhite
+        view.addSubview(nameLabel)
         
         let loginNameLabel = UILabel()
         loginNameLabel.translatesAutoresizingMaskIntoConstraints = false
         loginNameLabel.text = "@ekaterina_nov"
         loginNameLabel.font = UIFont(name: "YSDisplay-Medium", size: 13)
         loginNameLabel.textColor = .ypGray
+        view.addSubview(loginNameLabel)
         
         let descriptionLabel = UILabel()
         descriptionLabel.translatesAutoresizingMaskIntoConstraints = false
         descriptionLabel.text = "Hello, world!"
         descriptionLabel.font = UIFont(name: "YSDisplay-Medium", size: 13)
         descriptionLabel.textColor = .ypWhite
+        view.addSubview(descriptionLabel)
         
         let logoutButton = UIButton.systemButton(
             with: UIImage(named: "logout_button") ?? UIImage(),
@@ -276,7 +204,7 @@ private extension ProfileViewController {
         )
         logoutButton.translatesAutoresizingMaskIntoConstraints = false
         logoutButton.tintColor = .ypRed
-        
+        view.addSubview(logoutButton)
         
         return .init(
             avatarImageView: avatarImageView,
@@ -287,114 +215,35 @@ private extension ProfileViewController {
         )
     }
     
-    // MARK: тут будут лежать констрейнты к UI компонентам
+    // MARK: UI component constants
+    
     func layout(_ ui: UI) {
         
-//        avatarImageView.widthAnchor.constraint(equalToConstant: 70),
-        avatarImageView.heightAnchor.constraint(equalToConstant: 70),
-        avatarImageView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 32),
-        avatarImageView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 16)
-        
-        nameLabel.leadingAnchor.constraint(equalTo: avatarImageView.leadingAnchor),
-        nameLabel.topAnchor.constraint(equalTo: avatarImageView.bottomAnchor, constant: 8)
-
-        loginNameLabel.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: 8),
-        loginNameLabel.leadingAnchor.constraint(equalTo: nameLabel.leadingAnchor)
-        
-        descriptionLabel.topAnchor.constraint(equalTo: loginNameLabel.bottomAnchor, constant: 8),
-        descriptionLabel.leadingAnchor.constraint(equalTo: loginNameLabel.leadingAnchor)
-        
-        logoutButton.centerYAnchor.constraint(equalTo: avatarImageView.centerYAnchor),
-        logoutButton.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -16)
-        
-        // MARK: Активация констрейнтов
-        
-        NSLayoutConstraint.activate(
-            avatarImageView +
-            nameLabel +
-            loginNameLabel +
-            descriptionLabel +
-            logoutButton
-        )
+        NSLayoutConstraint.activate( [
+            
+            ui.avatarImageView.widthAnchor.constraint(equalToConstant: 70),
+            ui.avatarImageView.heightAnchor.constraint(equalToConstant: 70),
+            ui.avatarImageView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 32),
+            ui.avatarImageView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 16),
+            
+            ui.nameLabel.leadingAnchor.constraint(equalTo: ui.avatarImageView.leadingAnchor),
+            ui.nameLabel.topAnchor.constraint(equalTo: ui.avatarImageView.bottomAnchor, constant: 8),
+            
+            ui.loginNameLabel.topAnchor.constraint(equalTo: ui.nameLabel.bottomAnchor, constant: 8),
+            ui.loginNameLabel.leadingAnchor.constraint(equalTo: ui.nameLabel.leadingAnchor),
+            
+            ui.descriptionLabel.topAnchor.constraint(equalTo: ui.loginNameLabel.bottomAnchor, constant: 8),
+            ui.descriptionLabel.leadingAnchor.constraint(equalTo: ui.loginNameLabel.leadingAnchor),
+            
+            ui.logoutButton.centerYAnchor.constraint(equalTo: ui.avatarImageView.centerYAnchor),
+            ui.logoutButton.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -16)
+            
+        ])
     }
     
+    // MARK: The exit button from your personal account
     
-    
-    
-    //    func setupContentProfile() {
-    //        [
-    //            avatarImageView,
-    //            nameLabel,
-    //            loginNameLabel,
-    //            descriptionLabel,
-    //            logoutButton
-    //        ].forEach { subview in
-    //            view.addSubview(subview)
-    //        }
-    //    }
-    //
-    //    func setupConstraintsProfile() {
-    //        let avatarImageViewConstraints = avatarImageViewConstraints()
-    //        let nameLabelConstraints = nameLabelConstraints()
-    //        let loginNameLabelConstraints = loginNameLabelConstraints()
-    //        let descriptionLabelConstraints = descriptionLabelConstraints()
-    //        let logoutButtonConstraints = logoutButtonConstraints()
-    //
-    //        // MARK: Активация констрейнтов
-    //
-    //        NSLayoutConstraint.activate(
-    //            avatarImageViewConstraints +
-    //            nameLabelConstraints +
-    //            loginNameLabelConstraints +
-    //            descriptionLabelConstraints +
-    //            logoutButtonConstraints
-    //        )
-    //    }
-    //
-    // MARK: Констрейнты аватврки
-    
-//    func avatarImageViewConstraints() -> [NSLayoutConstraint] {
-//        [
-//            avatarImageView.widthAnchor.constraint(equalToConstant: 70),
-//            avatarImageView.heightAnchor.constraint(equalToConstant: 70),
-//            avatarImageView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 32),
-//            avatarImageView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 16)
-//        ]
-//    }
-//    
-//    // MARK: Констрейнты имени пользователя
-//    
-//    func nameLabelConstraints() -> [NSLayoutConstraint] {
-//        [
-//            nameLabel.leadingAnchor.constraint(equalTo: avatarImageView.leadingAnchor),
-//            nameLabel.topAnchor.constraint(equalTo: avatarImageView.bottomAnchor, constant: 8)
-//        ]
-//    }
-//    
-//    // MARK: Констрейнты личной ссылки на пользователя
-//    
-//    func loginNameLabelConstraints() -> [NSLayoutConstraint] {
-//        [
-//            loginNameLabel.topAnchor.constraint(equalTo: nameLabel.bottomAnchor, constant: 8),
-//            loginNameLabel.leadingAnchor.constraint(equalTo: nameLabel.leadingAnchor)
-//        ]
-//    }
-//    
-//    // MARK: Констрейнты статуса пользователя
-//    
-//    func descriptionLabelConstraints() -> [NSLayoutConstraint] {
-//        [
-//            descriptionLabel.topAnchor.constraint(equalTo: loginNameLabel.bottomAnchor, constant: 8),
-//            descriptionLabel.leadingAnchor.constraint(equalTo: loginNameLabel.leadingAnchor)
-//        ]
-//    }
-//    
-//    // MARK: Констрейнты кнопки выхода из личного кабинета
-//    
-//    func logoutButtonConstraints() -> [NSLayoutConstraint] {
-//        [
-//            logoutButton.centerYAnchor.constraint(equalTo: avatarImageView.centerYAnchor),
-//            logoutButton.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -16)
-//        ]
-//    }
+    @objc func didTapLogoutButton() {
+        print("logout_button \n")
+    }
 }

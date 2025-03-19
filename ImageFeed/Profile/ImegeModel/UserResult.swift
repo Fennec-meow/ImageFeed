@@ -16,7 +16,7 @@ struct UserResult: Codable {
     }
 }
 
-// MARK: - ProfileImage
+// MARK:  ProfileImage
 
 struct ProfileImage: Codable {
     let small: String
@@ -29,15 +29,3 @@ struct ProfileImage: Codable {
         case large = "large"
     }
 }
-
-//struct UserResult: Decodable {
-//    let profileImage: ProfileImage
-//}
-//
-//// MARK: - ProfileImage
-//
-//struct ProfileImage: Decodable {
-//    let small: String
-//    let medium: String
-//    let large: String
-//}

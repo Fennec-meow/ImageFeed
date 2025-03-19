@@ -7,11 +7,11 @@
 
 import Foundation
 
-// MARK: - class ProfileImageService
+// MARK: - ProfileImageService
 
 final class ProfileImageService {
     
-    // MARK: синглтон
+    // MARK: Singletone
     
     static let shared = ProfileImageService()
     private init() {}
@@ -20,22 +20,21 @@ final class ProfileImageService {
     
     private let urlSession = URLSession.shared
     
-    // MARK: avatarURL
+    // MARK: Private Property
     
     private(set) var avatarURL: String?
-    
     private var task: URLSessionTask?
-    
     private var lastToken: String?
-    
     private var userResultURL: String? = nil
     
     // MARK: Notification
     
     static let didChangeNotification = Notification.Name(rawValue: "ProfileImageProviderDidChange")
-    
-    // MARK: completeFetch
-    
+}
+
+// MARK: - completeFetch
+
+extension ProfileImageService {
     private func completeFetch(for username: String) -> URLRequest {
         guard let url = URL(string: "https://api.unsplash.com/users/" + username) else {
             preconditionFailure("Failed to create url")
@@ -50,9 +49,11 @@ final class ProfileImageService {
         print("completeFetch: создан запрос для пользователя \(username) с токеном. \n") // Принт созданного запроса
         return request
     }
-    
-    //MARK: fetchProfileImageURL
-    
+}
+
+//MARK: - fetchProfileImageURL
+
+extension ProfileImageService {
     func fetchProfileImageURL(_ username: String, completion: @escaping (Result<String, Error>) -> Void) {
         assert(Thread.isMainThread)
         print("fetchProfileImageURL: вызывается для пользователя \(username).\n") // Принт вызова функции
@@ -61,7 +62,6 @@ final class ProfileImageService {
         
         let task = urlSession.objectTask(for: request) { [weak self] (result: Result<UserResult, Error>) in
             guard let self else { return }
-            DispatchQueue.main.async { return }
             switch result {
             case .success(let json):
                 DispatchQueue.main.async {
@@ -86,33 +86,3 @@ final class ProfileImageService {
         print("setAvatarUrlString: установлен URL аватара: \(avatarUrl).\n") // Принт установки URL аватара
     }
 }
-//    func fetchProfileImageURL(username: String, _ completion: @escaping (Result<String, Error>) -> Void) {
-//        let request = completeFetch(for: username)
-//        
-////        let task = urlSession.objectTask(for: request) { [weak self] (result: Result<OAuthTokenResponseBody, Error>) in
-//
-//        let task = urlSession.dataTask(with: request) { data, response, error in
-//            DispatchQueue.main.async { return }
-//            if let error = error {
-//                completion(.failure(error))
-//                return
-//            }
-//            guard let data = data else {
-//                completion(.failure(NSError(domain: "", code: 0, userInfo: nil)))
-//                return
-//            }
-//            do {
-//                let urlString = try JSONDecoder().decode(String.self, from: data)
-//                self.avatarURL = urlString
-//                completion(.success(urlString))
-//                NotificationCenter.default                                     // 1
-//                    .post(                                                     // 2
-//                        name: ProfileImageService.didChangeNotification,       // 3
-//                        object: self,                                          // 4
-//                        userInfo: ["URL": self.avatarURL ?? ""]) // 5
-//            } catch {
-//                completion(.failure(error))
-//            }
-//        }.resume() // Запускаем задачу
-//    }
-

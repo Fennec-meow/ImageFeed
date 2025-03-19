@@ -7,7 +7,7 @@
 
 import UIKit
 
-// MARK: - Значения ячейки
+// MARK: - ImagesListCell
 
 final class ImagesListCell: UITableViewCell {
     static let reuseIdentifier = "ImagesListCell"

@@ -7,19 +7,17 @@
 
 import UIKit
 
-// MARK: - class ImagesListViewController
+// MARK: - ImagesListViewController
 
 final class ImagesListViewController: UIViewController {
     
-    // MARK: IBOutlet UITableView
+    // MARK: UI Components
     
     @IBOutlet private var tableView: UITableView!
     
-    // MARK: SegueIdentifier
+    // MARK: Private Property
     
     private let showSingleImageSegueIdentifier = "ShowSingleImage"
-    
-    // MARK: photosName
     
     private let photosName: [String] = Array(0..<20).map{ "\($0)" }
     
@@ -32,7 +30,7 @@ final class ImagesListViewController: UIViewController {
         return formatter
     }()
     
-    // MARK: viewDidLoad
+    // MARK: Lifecycle
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -41,7 +39,7 @@ final class ImagesListViewController: UIViewController {
         tableView.contentInset = UIEdgeInsets(top: 12, left: 0, bottom: 12, right: 0)
     }
     
-    // MARK: Метод prepare
+    // MARK: prepare UIStoryboardSegue
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == showSingleImageSegueIdentifier {
@@ -80,7 +78,7 @@ extension ImagesListViewController: UITableViewDataSource {
     }
 }
 
-// MARK: - Метод configCell
+// MARK: - Configuration of the like button
 
 extension ImagesListViewController {
     func configCell(for cell: ImagesListCell, with indexPath: IndexPath) {
@@ -97,6 +95,21 @@ extension ImagesListViewController {
     }
 }
 
+// MARK: - Private Methods
+
+private extension ImagesListViewController {
+    func calculateRowHeight(_ rowNumber: Int) -> CGFloat {
+        guard let image = UIImage(named: photosName[rowNumber]) else { return .zero }
+        
+        let imageInsets = UIEdgeInsets(top: 4, left: 16, bottom: 4, right: 16)
+        let imageViewWidth = tableView.bounds.width - imageInsets.left - imageInsets.right
+        let imageWidth = image.size.width
+        let scale = imageViewWidth / imageWidth
+        let cellHeight = image.size.height * scale + imageInsets.top + imageInsets.bottom
+        return cellHeight
+    }
+}
+
 // MARK: - UITableViewDelegate
 
 extension ImagesListViewController: UITableViewDelegate {
@@ -105,16 +118,7 @@ extension ImagesListViewController: UITableViewDelegate {
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        guard let image = UIImage(named: photosName[indexPath.row]) else {
-            return 0
-        }
-        
-        let imageInsets = UIEdgeInsets(top: 4, left: 16, bottom: 4, right: 16)
-        let imageViewWidth = tableView.bounds.width - imageInsets.left - imageInsets.right
-        let imageWidth = image.size.width
-        let scale = imageViewWidth / imageWidth
-        let cellHeight = image.size.height * scale + imageInsets.top + imageInsets.bottom
-        return cellHeight
+        calculateRowHeight(indexPath.row)
     }
 }
 

@@ -20,4 +20,3 @@ struct Profile {
         self.bio = profileResult.bio
     }
 }
-

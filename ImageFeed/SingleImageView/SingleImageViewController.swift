@@ -7,9 +7,15 @@
 
 import UIKit
 
-// MARK: - class SingleImageViewController
+// MARK: - SingleImageViewController
 
 final class SingleImageViewController: UIViewController {
+    
+    // MARK: UI Components
+    
+    @IBOutlet var scrollView: UIScrollView!
+    @IBOutlet var imageView: UIImageView!
+    
     var image: UIImage? {
         didSet {
             guard isViewLoaded else { return }
@@ -18,15 +24,7 @@ final class SingleImageViewController: UIViewController {
         }
     }
     
-    // MARK: IBOutlet UIScrollView
-    
-    @IBOutlet var scrollView: UIScrollView!
-    
-    // MARK: IBOutlet UIImageView
-    
-    @IBOutlet var imageView: UIImageView!
-    
-    // MARK: viewDidLoad
+    // MARK: Lifecycle
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -72,7 +70,6 @@ final class SingleImageViewController: UIViewController {
         let y = (newContentSize.height - visibleRectSize.height) / 2
         scrollView.setContentOffset(CGPoint(x: x, y: y), animated: false)
     }
-    
 }
 
 // MARK: - UIScrollViewDelegate

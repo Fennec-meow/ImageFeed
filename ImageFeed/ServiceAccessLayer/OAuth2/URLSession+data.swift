@@ -28,7 +28,7 @@ extension URLSession {
             DispatchQueue.main.async {
                 if let error = error {
                     print("objectTask: сеть: \(error.localizedDescription) \(request).\n")
-
+                    
                     completion(.failure(error))
                     return
                 }

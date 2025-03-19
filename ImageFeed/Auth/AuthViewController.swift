@@ -6,72 +6,193 @@
 //
 
 import UIKit
-//import ProgressHUD
+import ProgressHUD
 
-// MARK: - protocol AuthViewControllerDelegate
+// MARK: - AuthViewControllerDelegate
 
 protocol AuthViewControllerDelegate: AnyObject {
     func authViewController(_ vc: AuthViewController, didAuthenticateWithCode code: String)
 }
 
-// MARK: - class AuthViewController
+// MARK: - AuthViewController
 
 final class AuthViewController: UIViewController {
     
-    // MARK: Идентификатор сигвея
     
-    private let showWebViewSegueIdentifier = "ShowWebView"
+    // MARK: UI Components
     
-    // MARK: delegate: AuthViewControllerDelegate
+    private lazy var ui: UI = {
+        let ui = createUI()
+        layout(ui)
+        return ui
+    }()
+    
+    
+    // MARK: UI Components
+    
+//    @IBOutlet weak var startButton: UIButton!
+    
+    // MARK: Public Property
     
     weak var delegate: AuthViewControllerDelegate?
     
-    // MARK: Кнопка старта
+    // MARK: Private Property
     
-    @IBOutlet weak var startButton: UIButton!
+    private let showWebViewSegueIdentifier = "ShowWebView"
     
-    // MARK: viewDidLoad
+    // MARK: Lifecycle
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        configureBackButton()
         
-        startButton.titleLabel?.font = UIFont(name: "YSDisplay-Bold", size: 17)
+        setupUI()
     }
     
-    // MARK: Метод prepare
+    // MARK: prepare UIStoryboardSegue
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == showWebViewSegueIdentifier {
             guard
-                let webViewViewController = segue.destination as? WebViewViewController
+                let webViewController = segue.destination as? WebViewController
             else { fatalError("Failed to prepare for \(showWebViewSegueIdentifier)") }
-            webViewViewController.delegate = self
+            webViewController.delegate = self
         } else {
             super.prepare(for: segue, sender: sender)
         }
     }
+}
+
+// MARK: - UI Configuration
+
+private extension AuthViewController {
+    func setupUI() {
+        ui.startButton.titleLabel?.font = LayoutConstants.ysDisplayBold
+        
+        configureNavigationBar()
+    }
     
-    // MARK: Конфигурация кнопки
+    // MARK: Configuring the navigation bar
     
-    private func configureBackButton() {
-        navigationController?.navigationBar.backIndicatorImage = UIImage(named: "nav_back_button")
-        navigationController?.navigationBar.backIndicatorTransitionMaskImage = UIImage(named: "nav_back_button")
-        navigationItem.backBarButtonItem = UIBarButtonItem(title: "", style: .plain, target: nil, action: nil)
-        navigationItem.backBarButtonItem?.tintColor = UIColor(named: "ypBlack")
+    private func configureNavigationBar() {
+        navigationController?.navigationBar.backIndicatorImage = ImageConstants.navBackButton
+        navigationController?.navigationBar.backIndicatorTransitionMaskImage = ImageConstants.navBackButton
+        navigationItem.backBarButtonItem = UIBarButtonItem(
+            title: String(),
+            style: .plain,
+            target: nil,
+            action: nil
+        )
+        navigationItem.backBarButtonItem?.tintColor = ColorConstants.ypBlack
     }
 }
 
-// MARK: - AuthViewController: WebViewViewControllerDelegate
+// MARK: - Constants
 
-extension AuthViewController: WebViewViewControllerDelegate {
-    func webViewViewController(_ vc: WebViewViewController, didAuthenticateWithCode code: String) {
+private extension AuthViewController {
+    enum LayoutConstants {
+        static let ysDisplayBold: UIFont = .init(name: "YSDisplay-Bold", size: 17) ?? UIFont.systemFont(ofSize: 17)
+    }
+    
+    enum PointConstants {
+        
+    }
+    
+    enum StringConstants {
+        
+    }
+    
+    enum ImageConstants {
+        static let navBackButton: UIImage = .init(named: "nav_back_button") ?? UIImage()
+    }
+    
+    enum ColorConstants {
+        static let ypBlack: UIColor = .init(named: "ypBlack") ?? UIColor.black
+    }
+}
+
+// MARK: - AuthViewController: WebViewControllerDelegate
+
+extension AuthViewController: WebViewControllerDelegate {
+    func webViewController(_ vc: WebViewController, didAuthenticateWithCode code: String) {
         delegate?.authViewController(self, didAuthenticateWithCode: code)
         UIBlockingProgressHUD.show()
     }
     
-    func webViewViewControllerDidCancel(_ vc: WebViewViewController) {
+    func webViewControllerDidCancel(_ vc: WebViewController) {
         dismiss(animated: true)
         UIBlockingProgressHUD.dismiss()
     }
+}
+
+// MARK: - UI Configuring
+
+private extension AuthViewController {
+    
+    // MARK: UI components
+    
+    struct UI {
+        
+        let unsplashImageView: UIImageView
+        let startButton: UIButton
+    }
+    
+    // MARK: Creating UI components
+    
+    func createUI() -> UI {
+        
+        let unsplashImageView = UIImageView()
+        unsplashImageView.image = UIImage(named: "Logo_of_Unsplash")
+        
+        unsplashImageView.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(unsplashImageView)
+        
+        let startButton = UIButton(type: .system)
+        
+        startButton.setTitleColor(.ypBlack, for: .normal)
+        startButton.backgroundColor = .ypWhite
+        startButton.setTitle("Войти", for: .normal)
+        startButton.titleLabel?.font = UIFont(name: "YSDisplay-Bold", size: 17)
+        startButton.addTarget(self, action: #selector(didTapStartButton), for: .touchUpInside)
+        startButton.layer.cornerRadius = 16
+        
+        startButton.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(startButton)
+
+        return .init(
+            unsplashImageView: unsplashImageView,
+            startButton: startButton
+        )
+    }
+    
+    // MARK: UI component constants
+    
+    func layout(_ ui: UI) {
+        
+        NSLayoutConstraint.activate( [
+            
+            ui.unsplashImageView.widthAnchor.constraint(equalToConstant: 60),
+            ui.unsplashImageView.heightAnchor.constraint(equalToConstant: 60),
+            ui.unsplashImageView.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor),
+            ui.unsplashImageView.centerYAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerYAnchor),
+            
+            ui.startButton.heightAnchor.constraint(equalToConstant: 48),
+            ui.startButton.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -16),
+            ui.startButton.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 16),
+            ui.startButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -90)
+        ])
+    }
+    @objc func didTapStartButton() {
+        // Проверяем, есть ли у контроллера UINavigationController
+        guard let navigationController = navigationController else {
+            print("NavigationController не найден")
+            return
+        }
+        
+        // Инициализируем WebViewController
+        let webViewController = WebViewController()
+        webViewController.delegate = self // Если есть делегат, устанавливаем его
+        // Переходим на WebViewController
+        navigationController.pushViewController(webViewController, animated: true)
+    }
+
 }

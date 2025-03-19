@@ -7,38 +7,30 @@
 
 import Foundation
 
-// MARK: - class ProfileService
+// MARK: - ProfileService
 
 final class ProfileService {
     
-    private let urlSession = URLSession.shared
-    
-    private var task: URLSessionTask?
-    
-    private var lastToken: String?
-    
-    
-    // MARK: синглтон
+    // MARK: Singletone
     
     static let shared = ProfileService()
     private init() {}
     
-    // MARK: set profile
+    // MARK: URLSession
+    
+    private let urlSession = URLSession.shared
+    
+    // MARK: Private Property
     
     private(set) var profile: Profile?
+    private var task: URLSessionTask?
+    private var lastToken: String?
     
-    // MARK: createRequest
-    
-    private func createRequest(with token: String) -> URLRequest {
-        var request = URLRequest(url: URL(string: Constants.baseURL) ?? URL(fileURLWithPath: ""))
-        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
-        request.httpMethod = "GET"
-        print("createRequest: создан запрос с токеном: \(token).\n") // Принт созданного запроса
-        return request
-    }
-    
-    // MARK: fetchProfile
-    
+}
+
+// MARK: - fetchProfile
+
+extension ProfileService {
     func fetchProfile(_ token: String, completion: @escaping(Result<Profile, Error>) -> Void) {
         assert(Thread.isMainThread)
         print("fetchProfile: вызывается с токеном: \(token).\n") // Принт вызова функции
@@ -83,25 +75,16 @@ final class ProfileService {
         task.resume()
     }
 }
-//
-//        urlSession.dataTask(with: request) { data, response, error in
-//            if let error = error {
-//                completion(.failure(error))
-//                return
-//            }
-//
-//            guard let data = data else {
-//                completion(.failure(NSError(domain: "No data", code: -1, userInfo: nil)))
-//                return
-//            }
-//
-//            do {
-//                let profileResult = try JSONDecoder().decode(ProfileResult.self, from: data)
-//                let profile = Profile(profileResult: profileResult)
-//                ProfileImageService.shared.fetchProfileImageURL(username: profile.loginName) { _ in }
-//                completion(.success(profile))
-//            } catch {
-//                completion(.failure(error))
-//            }
-//        }.resume() // Запускаем задачу/
+
+// MARK: - createRequest
+
+private extension ProfileService {
+    func createRequest(with token: String) -> URLRequest {
+        var request = URLRequest(url: URL(string: Constants.baseURL) ?? URL(fileURLWithPath: ""))
+        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        request.httpMethod = "GET"
+        print("createRequest: создан запрос с токеном: \(token).\n") // Принт созданного запроса
+        return request
+    }
+}
 

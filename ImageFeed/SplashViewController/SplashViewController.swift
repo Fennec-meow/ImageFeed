@@ -7,22 +7,23 @@
 
 import UIKit
 
-// MARK: - class SplashViewController
+// MARK: -  SplashViewController
 
 final class SplashViewController: UIViewController {
-
-    private let showAuthenticationScreenSegueIdentifier = "ShowAuthentication"
-    // MARK: OAuth2Service
+    
+    // MARK: Service
     
     private let oauth2Service = OAuth2Service.shared
     private let profileService = ProfileService.shared
     private let profileImageService = ImageFeed.ProfileImageService.shared
     
-    // MARK: OAuth2TokenStorage
+    // MARK: Private Property
+    
+    private let showAuthenticationScreenSegueIdentifier = "ShowAuthentication"
     
     private let swiftKeychainWrapper = SwiftKeychainWrapper()
-        
-    // MARK: UI
+    
+    // MARK: UI Components
     
     private var vectorImageView: UIImageView = {
         let imageView = UIImageView(image: UIImage(named: "Vector"))
@@ -99,6 +100,22 @@ final class SplashViewController: UIViewController {
         window.makeKeyAndVisible()
         print("switchToTabBarController: переход к TabBarController.\n") // Принт перехода к TabBarController
     }
+    
+    func showAlert() {
+        let alert  = UIAlertController(
+            title: "Что-то пошло не так",
+            message: "Не удалось войти в систему",
+            preferredStyle: .alert)
+        
+        let action = UIAlertAction(
+            title: "OK",
+            style: .default,
+            handler: { _ in
+                alert.dismiss(animated: true, completion: nil)
+            })
+        alert.addAction(action)
+        self.present(alert, animated: true, completion: nil)
+    }
 }
 
 // MARK: - AuthViewControllerDelegate
@@ -123,6 +140,8 @@ extension SplashViewController: AuthViewControllerDelegate {
                 // Переход к TabBarController
                 self.switchToTabBarController()
             case .failure:
+                UIBlockingProgressHUD.dismiss()
+                self.showAlert()
                 print("fetchOAuthToken: ошибка при получении токена.\n") // Принт ошибки получения токена
                 break
             }
@@ -146,6 +165,7 @@ extension SplashViewController: AuthViewControllerDelegate {
                                 print("fetchProfile: успешно установлен URL аватара: \(avatarURL).\n") // Принт успешного установки URL аватара
                             }
                         case .failure:
+                            self.showAlert()
                             print("fetchProfile: ошибка при получении URL аватара.\n") // Принт ошибки получения URL аватара
                             return
                         }
@@ -154,6 +174,8 @@ extension SplashViewController: AuthViewControllerDelegate {
                     UIBlockingProgressHUD.dismiss()
                     self.switchToTabBarController()
                 case .failure:
+                    UIBlockingProgressHUD.dismiss()
+                    self.showAlert()
                     print("fetchProfile: ошибка при получении профиля.\n") // Принт ошибки получения профиля
                     break
                 }
@@ -172,25 +194,6 @@ extension SplashViewController: AuthViewControllerDelegate {
         fetchProfile(token: token)
     }
 }
-
-//    private func fetchProfile(_ token: String) {
-//        UIBlockingProgressHUD.show()
-//        profileService.fetchProfile(token) { [weak self] result in
-//            UIBlockingProgressHUD.dismiss()
-//
-//            guard let self = self else { return }
-//
-//            switch result {
-//            case .success:
-//                self.switchToTabBarController()
-//
-//            case .failure:
-//                print("Failed to fetch profile")
-//
-//                break
-//            }
-//        }
-//    }
 
 // MARK: - Prepare for segue
 
@@ -215,8 +218,6 @@ extension SplashViewController {
     
     func setupConstraints() {
         let vectorImageViewViewConstraints = vectorImageViewViewConstraints()
-        
-        // MARK: Активация констрейнтов
         
         NSLayoutConstraint.activate(
             vectorImageViewViewConstraints
