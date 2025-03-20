@@ -74,6 +74,14 @@ private extension AuthViewController {
         )
         navigationItem.backBarButtonItem?.tintColor = ColorConstants.ypBlack
     }
+    
+    @objc func didTapStartButton() {
+        // Инициализируем WebViewController
+        let webViewController = WebViewController()
+        webViewController.delegate = self // Если есть делегат, устанавливаем его
+        // Переходим на WebViewController
+        present(webViewController, animated: true)
+    }
 }
 
 // MARK: - Constants

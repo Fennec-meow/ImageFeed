@@ -102,7 +102,7 @@ final class ProfileViewController: UIViewController {
                 let url = URL(string: profileImageURL)
             else { return }
             let processor = RoundCornerImageProcessor(
-                cornerRadius: 35,
+                cornerRadius: 61,
                 backgroundColor: .clear
             )
             self.ui.avatarImageView.kf.indicatorType = .activity
@@ -120,9 +120,10 @@ final class ProfileViewController: UIViewController {
 
 private extension ProfileViewController {
     func getAvatar() {
-         
+        UIBlockingProgressHUD.show()
         profileImageService.fetchProfileImageURL(username ?? String()) { [weak self] result in
             guard let self else { return }
+            UIBlockingProgressHUD.dismiss()
             switch result {
             case .success(let stringUrl):
                 guard
@@ -130,10 +131,10 @@ private extension ProfileViewController {
                 else { return }
                 DispatchQueue.main.async {
                     let processor = RoundCornerImageProcessor(
-                        cornerRadius: 35,
+                        cornerRadius: 61,
                         backgroundColor: .clear
                     )
-                    
+                    UIBlockingProgressHUD.dismiss()
                     self.ui.avatarImageView.kf.indicatorType = .activity
                     self.ui.avatarImageView.kf.setImage(
                         with: url,
@@ -174,7 +175,7 @@ private extension ProfileViewController {
         let avatarImageView = UIImageView()
         avatarImageView.translatesAutoresizingMaskIntoConstraints = false
         avatarImageView.image = UIImage(named: "avatar")
-        avatarImageView.layer.cornerRadius = 35
+        avatarImageView.layer.cornerRadius = 61
         view.addSubview(avatarImageView)
         
         let nameLabel = UILabel()

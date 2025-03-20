@@ -54,14 +54,16 @@ final class SplashViewController: UIViewController {
             UIBlockingProgressHUD.dismiss()
             switchToTabBarController()
         } else {
+            UIBlockingProgressHUD.show()
             DispatchQueue.main.async { [weak self] in
-                guard let self = self else { return }
+                guard let self else { return }
                 let storyboard = UIStoryboard(name: "Main", bundle: .main)
                 guard let authViewController = storyboard.instantiateViewController(withIdentifier: "AuthViewController") as? AuthViewController else { return }
                 authViewController.delegate = self
                 authViewController.modalPresentationStyle = .fullScreen
-                print("viewDidAppear: токен не найден, переход к AuthViewController.\n") // Принт перехода к экрану аутентификации
+                                print("viewDidAppear: токен не найден, переход к AuthViewController.\n") // Принт перехода к экрану аутентификации
                 self.present(authViewController, animated: true)
+                UIBlockingProgressHUD.dismiss()
             }
         }
     }
@@ -152,8 +154,8 @@ extension SplashViewController: AuthViewControllerDelegate {
         UIBlockingProgressHUD.show()
         profileService.fetchProfile(token) { [weak self] result in
             DispatchQueue.main.async {
+                UIBlockingProgressHUD.dismiss()
                 guard let self else { return }
-                
                 switch result {
                 case .success(let profile):
                     print("fetchProfile: успешно получен профиль для пользователя \(profile.userName).\n") // Принт успешного получения профиля
@@ -162,9 +164,11 @@ extension SplashViewController: AuthViewControllerDelegate {
                         case .success(let avatarURL):
                             DispatchQueue.main.async {
                                 self.profileImageService.setAvatarUrlString(avatarUrl: avatarURL)
+                                UIBlockingProgressHUD.dismiss()
                                 print("fetchProfile: успешно установлен URL аватара: \(avatarURL).\n") // Принт успешного установки URL аватара
                             }
                         case .failure:
+                            UIBlockingProgressHUD.dismiss()
                             self.showAlert()
                             print("fetchProfile: ошибка при получении URL аватара.\n") // Принт ошибки получения URL аватара
                             return
