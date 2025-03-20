@@ -120,6 +120,7 @@ final class ProfileViewController: UIViewController {
 
 private extension ProfileViewController {
     func getAvatar() {
+         
         profileImageService.fetchProfileImageURL(username ?? String()) { [weak self] result in
             guard let self else { return }
             switch result {

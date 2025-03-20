@@ -18,19 +18,9 @@ protocol AuthViewControllerDelegate: AnyObject {
 
 final class AuthViewController: UIViewController {
     
-    
     // MARK: UI Components
     
-    private lazy var ui: UI = {
-        let ui = createUI()
-        layout(ui)
-        return ui
-    }()
-    
-    
-    // MARK: UI Components
-    
-//    @IBOutlet weak var startButton: UIButton!
+    @IBOutlet weak var startButton: UIButton!
     
     // MARK: Public Property
     
@@ -66,7 +56,7 @@ final class AuthViewController: UIViewController {
 
 private extension AuthViewController {
     func setupUI() {
-        ui.startButton.titleLabel?.font = LayoutConstants.ysDisplayBold
+        startButton.titleLabel?.font = LayoutConstants.ysDisplayBold
         
         configureNavigationBar()
     }
@@ -93,14 +83,6 @@ private extension AuthViewController {
         static let ysDisplayBold: UIFont = .init(name: "YSDisplay-Bold", size: 17) ?? UIFont.systemFont(ofSize: 17)
     }
     
-    enum PointConstants {
-        
-    }
-    
-    enum StringConstants {
-        
-    }
-    
     enum ImageConstants {
         static let navBackButton: UIImage = .init(named: "nav_back_button") ?? UIImage()
     }
@@ -122,77 +104,4 @@ extension AuthViewController: WebViewControllerDelegate {
         dismiss(animated: true)
         UIBlockingProgressHUD.dismiss()
     }
-}
-
-// MARK: - UI Configuring
-
-private extension AuthViewController {
-    
-    // MARK: UI components
-    
-    struct UI {
-        
-        let unsplashImageView: UIImageView
-        let startButton: UIButton
-    }
-    
-    // MARK: Creating UI components
-    
-    func createUI() -> UI {
-        
-        let unsplashImageView = UIImageView()
-        unsplashImageView.image = UIImage(named: "Logo_of_Unsplash")
-        
-        unsplashImageView.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(unsplashImageView)
-        
-        let startButton = UIButton(type: .system)
-        
-        startButton.setTitleColor(.ypBlack, for: .normal)
-        startButton.backgroundColor = .ypWhite
-        startButton.setTitle("Войти", for: .normal)
-        startButton.titleLabel?.font = UIFont(name: "YSDisplay-Bold", size: 17)
-        startButton.addTarget(self, action: #selector(didTapStartButton), for: .touchUpInside)
-        startButton.layer.cornerRadius = 16
-        
-        startButton.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(startButton)
-
-        return .init(
-            unsplashImageView: unsplashImageView,
-            startButton: startButton
-        )
-    }
-    
-    // MARK: UI component constants
-    
-    func layout(_ ui: UI) {
-        
-        NSLayoutConstraint.activate( [
-            
-            ui.unsplashImageView.widthAnchor.constraint(equalToConstant: 60),
-            ui.unsplashImageView.heightAnchor.constraint(equalToConstant: 60),
-            ui.unsplashImageView.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor),
-            ui.unsplashImageView.centerYAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerYAnchor),
-            
-            ui.startButton.heightAnchor.constraint(equalToConstant: 48),
-            ui.startButton.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -16),
-            ui.startButton.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 16),
-            ui.startButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -90)
-        ])
-    }
-    @objc func didTapStartButton() {
-        // Проверяем, есть ли у контроллера UINavigationController
-        guard let navigationController = navigationController else {
-            print("NavigationController не найден")
-            return
-        }
-        
-        // Инициализируем WebViewController
-        let webViewController = WebViewController()
-        webViewController.delegate = self // Если есть делегат, устанавливаем его
-        // Переходим на WebViewController
-        navigationController.pushViewController(webViewController, animated: true)
-    }
-
 }

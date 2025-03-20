@@ -20,15 +20,9 @@ protocol WebViewControllerDelegate: AnyObject {
 final class WebViewController: UIViewController {
     
     // MARK: UI Components
-    
-    private lazy var ui: UI = {
-        let ui = createUI()
-        layout(ui)
-        return ui
-    }()
-    
-//    @IBOutlet private var webView: WKWebView!
-//    @IBOutlet private var progressView: UIProgressView!
+ 
+    @IBOutlet private var webView: WKWebView!
+    @IBOutlet private var progressView: UIProgressView!
     
     // MARK: Public Property
     
@@ -43,7 +37,7 @@ final class WebViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        estimatedProgressObservation = ui.webView.observe(
+        estimatedProgressObservation = webView.observe(
             \.estimatedProgress,
              options: [],
              changeHandler: { [weak self] _, _ in
@@ -51,7 +45,7 @@ final class WebViewController: UIViewController {
                  self.updateProgress()
              })
         
-        ui.webView.navigationDelegate = self
+        webView.navigationDelegate = self
         
         loadAuthView()
         updateProgress()
@@ -67,7 +61,7 @@ final class WebViewController: UIViewController {
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
-        ui.webView.addObserver(
+        webView.addObserver(
             self,
             forKeyPath: #keyPath(WKWebView.estimatedProgress),
             options: .new,
@@ -77,7 +71,7 @@ final class WebViewController: UIViewController {
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        ui.webView.removeObserver(self, forKeyPath: #keyPath(WKWebView.estimatedProgress), context: nil)
+        webView.removeObserver(self, forKeyPath: #keyPath(WKWebView.estimatedProgress), context: nil)
     }
     
     // MARK: The update handler
@@ -96,8 +90,8 @@ final class WebViewController: UIViewController {
     }
     
     private func updateProgress() {
-        ui.progressView.progress = Float(ui.webView.estimatedProgress)
-        ui.progressView.isHidden = fabs(ui.webView.estimatedProgress - 1.0) <= 0.0001
+        progressView.progress = Float(webView.estimatedProgress)
+        progressView.isHidden = fabs(webView.estimatedProgress - 1.0) <= 0.0001
     }
 }
 
@@ -119,7 +113,7 @@ private extension WebViewController {
         guard let url = urlComponents.url else { return }
         
         let request = URLRequest(url: url)
-        ui.webView.load(request)
+        webView.load(request)
     }
 }
 
@@ -153,71 +147,4 @@ extension WebViewController: WKNavigationDelegate {
             return nil
         }
     }
-}
-
-// MARK: - UI Configuring
-
-private extension WebViewController {
-    
-    // MARK: UI components
-    
-    struct UI {
-
-        let webView: WKWebView
-        let progressView: UIProgressView
-    }
-    
-    // MARK: Creating UI components
-    
-    func createUI() -> UI {
-        
-        let webView = WKWebView()
-          
-        
-        webView.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(webView)
-        
-        let progressView = UIProgressView()
-         
-        
-        progressView.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(progressView)
-
-        return .init(
-            webView: webView,
-            progressView: progressView
-        )
-    }
-    
-    // MARK: UI component constants
-    
-    func layout(_ ui: UI) {
-        
-        NSLayoutConstraint.activate( [
-            
-            ui.webView.topAnchor.constraint(equalTo: view.superview!.topAnchor),
-            ui.webView.leadingAnchor.constraint(equalTo: view.superview!.leadingAnchor),
-            ui.webView.trailingAnchor.constraint(equalTo: view.superview!.trailingAnchor),
-            ui.webView.bottomAnchor.constraint(equalTo: view.superview!.bottomAnchor),
-        
-            ui.progressView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 40),
-            ui.progressView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
-            ui.progressView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor)
-            
-        ])
-    }
-//    @objc func didTapStartButton() {
-//        // Проверяем, есть ли у контроллера UINavigationController
-//        guard let navigationController = navigationController else {
-//            print("NavigationController не найден")
-//            return
-//        }
-//        
-//        // Инициализируем WebViewController
-//        let webViewController = WebViewController()
-//        webViewController.delegate = self // Если есть делегат, устанавливаем его
-//        // Переходим на WebViewController
-//        navigationController.pushViewController(webViewController, animated: true)
-//    }
-
 }
