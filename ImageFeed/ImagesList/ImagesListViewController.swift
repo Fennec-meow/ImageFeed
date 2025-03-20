@@ -7,13 +7,23 @@
 
 import UIKit
 
+// MARK: - class ImagesListViewController
+
 final class ImagesListViewController: UIViewController {
+    
+    // MARK: - IBOutlet UITableView
     
     @IBOutlet private var tableView: UITableView!
     
+    // MARK: - SegueIdentifier
+    
     private let showSingleImageSegueIdentifier = "ShowSingleImage"
     
+    // MARK: - photosName
+    
     private let photosName: [String] = Array(0..<20).map{ "\($0)" }
+    
+    // MARK: - dateFormatter
     
     private lazy var dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
@@ -22,12 +32,16 @@ final class ImagesListViewController: UIViewController {
         return formatter
     }()
     
+    // MARK: - viewDidLoad
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
         tableView.rowHeight = 200
         tableView.contentInset = UIEdgeInsets(top: 12, left: 0, bottom: 12, right: 0)
     }
+    
+    // MARK: - Метод prepare
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == showSingleImageSegueIdentifier {
@@ -47,6 +61,8 @@ final class ImagesListViewController: UIViewController {
     }
 }
 
+// MARK: - UITableViewDataSource
+
 extension ImagesListViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return photosName.count
@@ -64,6 +80,8 @@ extension ImagesListViewController: UITableViewDataSource {
     }
 }
 
+// MARK: - Метод configCell
+
 extension ImagesListViewController {
     func configCell(for cell: ImagesListCell, with indexPath: IndexPath) {
         guard let image = UIImage(named: photosName[indexPath.row]) else {
@@ -78,6 +96,8 @@ extension ImagesListViewController {
         cell.likeButton.setImage(likeImage, for: .normal)
     }
 }
+
+// MARK: - UITableViewDelegate
 
 extension ImagesListViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
