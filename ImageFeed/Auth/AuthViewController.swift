@@ -6,7 +6,6 @@
 //
 
 import UIKit
-import ProgressHUD
 
 // MARK: - AuthViewControllerDelegate
 
@@ -44,7 +43,7 @@ final class AuthViewController: UIViewController {
         if segue.identifier == showWebViewSegueIdentifier {
             guard
                 let webViewController = segue.destination as? WebViewController
-            else { fatalError("Failed to prepare for \(showWebViewSegueIdentifier)") }
+            else { return /*fatalError("Failed to prepare for \(showWebViewSegueIdentifier)")*/ }
             webViewController.delegate = self
         } else {
             super.prepare(for: segue, sender: sender)
@@ -63,7 +62,7 @@ private extension AuthViewController {
     
     // MARK: Configuring the navigation bar
     
-    private func configureNavigationBar() {
+     func configureNavigationBar() {
         navigationController?.navigationBar.backIndicatorImage = ImageConstants.navBackButton
         navigationController?.navigationBar.backIndicatorTransitionMaskImage = ImageConstants.navBackButton
         navigationItem.backBarButtonItem = UIBarButtonItem(

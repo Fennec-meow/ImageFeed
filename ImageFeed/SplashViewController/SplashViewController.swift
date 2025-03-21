@@ -25,7 +25,7 @@ final class SplashViewController: UIViewController {
     
     // MARK: UI Components
     
-    private var vectorImageView: UIImageView = {
+    private lazy var vectorImageView: UIImageView = {
         let imageView = UIImageView(image: UIImage(named: "Vector"))
         imageView.contentMode = .scaleAspectFit
         imageView.translatesAutoresizingMaskIntoConstraints = false
@@ -141,10 +141,10 @@ extension SplashViewController: AuthViewControllerDelegate {
                 self.fetchProfile(token: token)
                 // Переход к TabBarController
                 self.switchToTabBarController()
-            case .failure:
+            case .failure(let error):
                 UIBlockingProgressHUD.dismiss()
-                self.showAlert()
-                print("fetchOAuthToken: ошибка при получении токена.\n") // Принт ошибки получения токена
+//                self.showAlert()  // как я пониамю надо было тут убрать вызов, тогда при удачном запуске не будет показывать алерт
+                print("fetchOAuthToken: ошибка при получении токена: \(error.localizedDescription).\n") // Принт ошибки получения токена
                 break
             }
         }
