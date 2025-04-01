@@ -7,68 +7,108 @@
 
 import UIKit
 
-// MARK: - protocol AuthViewControllerDelegate
+// MARK: - AuthViewControllerDelegate
 
 protocol AuthViewControllerDelegate: AnyObject {
     func authViewController(_ vc: AuthViewController, didAuthenticateWithCode code: String)
 }
 
-// MARK: - class AuthViewController
+// MARK: - AuthViewController
 
 final class AuthViewController: UIViewController {
     
-    // MARK: - Идентификатор сигвея
-    
-    private let showWebViewSegueIdentifier = "ShowWebView"
-    
-    // MARK: - delegate: AuthViewControllerDelegate
-    
-    weak var delegate: AuthViewControllerDelegate?
-    
-    // MARK: - Кнопка старта
+    // MARK: UI Components
     
     @IBOutlet weak var startButton: UIButton!
     
-    // MARK: - viewDidLoad
+    // MARK: Public Property
+    
+    weak var delegate: AuthViewControllerDelegate?
+    
+    // MARK: Private Property
+    
+    private let showWebViewSegueIdentifier = "ShowWebView"
+    
+    // MARK: Lifecycle
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        configureBackButton()
         
-        startButton.titleLabel?.font = UIFont(name: "YSDisplay-Bold", size: 17)
+        setupUI()
     }
     
-    // MARK: - Метод prepare
+    // MARK: prepare UIStoryboardSegue
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == showWebViewSegueIdentifier {
             guard
-                let webViewViewController = segue.destination as? WebViewViewController
-            else { fatalError("Failed to prepare for \(showWebViewSegueIdentifier)") }
-            webViewViewController.delegate = self
+                let webViewController = segue.destination as? WebViewController
+            else { return /*fatalError("Failed to prepare for \(showWebViewSegueIdentifier)")*/ }
+            webViewController.delegate = self
         } else {
             super.prepare(for: segue, sender: sender)
         }
     }
+}
+
+// MARK: - UI Configuration
+
+private extension AuthViewController {
+    func setupUI() {
+        startButton.titleLabel?.font = LayoutConstants.ysDisplayBold
+        
+        configureNavigationBar()
+    }
     
-    // MARK: - Конфигурация кнопки
+    // MARK: Configuring the navigation bar
     
-    private func configureBackButton() {
-        navigationController?.navigationBar.backIndicatorImage = UIImage(named: "nav_back_button")
-        navigationController?.navigationBar.backIndicatorTransitionMaskImage = UIImage(named: "nav_back_button")
-        navigationItem.backBarButtonItem = UIBarButtonItem(title: "", style: .plain, target: nil, action: nil)
-        navigationItem.backBarButtonItem?.tintColor = UIColor(named: "ypBlack") 
+     func configureNavigationBar() {
+        navigationController?.navigationBar.backIndicatorImage = ImageConstants.navBackButton
+        navigationController?.navigationBar.backIndicatorTransitionMaskImage = ImageConstants.navBackButton
+        navigationItem.backBarButtonItem = UIBarButtonItem(
+            title: String(),
+            style: .plain,
+            target: nil,
+            action: nil
+        )
+        navigationItem.backBarButtonItem?.tintColor = ColorConstants.ypBlack
+    }
+    
+    @objc func didTapStartButton() {
+        // Инициализируем WebViewController
+        let webViewController = WebViewController()
+        webViewController.delegate = self // Если есть делегат, устанавливаем его
+        // Переходим на WebViewController
+        present(webViewController, animated: true)
     }
 }
 
-// MARK: - AuthViewController: WebViewViewControllerDelegate
+// MARK: - Constants
 
-extension AuthViewController: WebViewViewControllerDelegate {
-    func webViewViewController(_ vc: WebViewViewController, didAuthenticateWithCode code: String) {
-        delegate?.authViewController(self, didAuthenticateWithCode: code)
+private extension AuthViewController {
+    enum LayoutConstants {
+        static let ysDisplayBold: UIFont = .init(name: "YSDisplay-Bold", size: 17) ?? UIFont.systemFont(ofSize: 17)
     }
     
-    func webViewViewControllerDidCancel(_ vc: WebViewViewController) {
+    enum ImageConstants {
+        static let navBackButton: UIImage = .init(named: "nav_back_button") ?? UIImage()
+    }
+    
+    enum ColorConstants {
+        static let ypBlack: UIColor = .init(named: "ypBlack") ?? UIColor.black
+    }
+}
+
+// MARK: - AuthViewController: WebViewControllerDelegate
+
+extension AuthViewController: WebViewControllerDelegate {
+    func webViewController(_ vc: WebViewController, didAuthenticateWithCode code: String) {
+        delegate?.authViewController(self, didAuthenticateWithCode: code)
+        UIBlockingProgressHUD.show()
+    }
+    
+    func webViewControllerDidCancel(_ vc: WebViewController) {
         dismiss(animated: true)
+        UIBlockingProgressHUD.dismiss()
     }
 }

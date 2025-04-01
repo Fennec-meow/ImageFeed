@@ -7,7 +7,15 @@
 
 import UIKit
 
+// MARK: - SingleImageViewController
+
 final class SingleImageViewController: UIViewController {
+    
+    // MARK: UI Components
+    
+    @IBOutlet var scrollView: UIScrollView!
+    @IBOutlet var imageView: UIImageView!
+    
     var image: UIImage? {
         didSet {
             guard isViewLoaded else { return }
@@ -16,15 +24,7 @@ final class SingleImageViewController: UIViewController {
         }
     }
     
-    // MARK: - IBOutlet UIScrollView
-    
-    @IBOutlet var scrollView: UIScrollView!
-    
-    // MARK: - IBOutlet UIImageView
-    
-    @IBOutlet var imageView: UIImageView!
-    
-    // MARK: - viewDidLoad
+    // MARK: Lifecycle
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -34,13 +34,13 @@ final class SingleImageViewController: UIViewController {
         rescaleAndCenterImageInScrollView(image: image ?? UIImage())
     }
     
-    // MARK: - didTapBackButton
+    // MARK: didTapBackButton
     
     @IBAction private func didTapBackButton() {
         dismiss(animated: true, completion: nil)
     }
     
-    // MARK: - didTapSaveButton
+    // MARK: didTapSaveButton
     
     @IBAction private func didTapSaveButton() {
         guard let image else { return }
@@ -52,7 +52,7 @@ final class SingleImageViewController: UIViewController {
         present(share, animated: true, completion: nil)
     }
     
-    // MARK: - rescaleAndCenterImageInScrollView
+    // MARK: rescaleAndCenterImageInScrollView
     
     private func rescaleAndCenterImageInScrollView(image: UIImage) {
         let minZoomScale = scrollView.minimumZoomScale
@@ -70,7 +70,6 @@ final class SingleImageViewController: UIViewController {
         let y = (newContentSize.height - visibleRectSize.height) / 2
         scrollView.setContentOffset(CGPoint(x: x, y: y), animated: false)
     }
-    
 }
 
 // MARK: - UIScrollViewDelegate

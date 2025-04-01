@@ -6,29 +6,54 @@
 //
 
 import Foundation
+import SwiftKeychainWrapper
 
-// MARK: - class OAuth2Service
+// MARK: - OAuth2Service
 
 final class OAuth2Service {
     
-    // MARK: - Синглтон
+    // MARK: Singletone
     
     static let shared = OAuth2Service()
     private init() {}
     
-    // MARK: - OAuthError
+    // MARK: URLSession
+    
+    // Объявляем и инициализируем переменную URLSession.
+    private let urlSession = URLSession.shared
+    
+    // MARK: Private Property
+    
+    private(set) var authToken: String? {
+        get {
+            return SwiftKeychainWrapper().getToken()
+        }
+        set {
+            SwiftKeychainWrapper().setToken(token: newValue)
+        }
+    }
+    
+    // Переменная для хранения указателя на последнюю созданную задачу. Если активных задач нет, то значение будет nil.
+    private var task: URLSessionTask?
+    
+    // Переменная для хранения значения code, которое было передано в последнем созданном запросе.
+    private var lastCode: String?
+    
+    // MARK: OAuthError
     
     private enum OAuthError: Error {
         case codeError, decodeError
     }
-    
-    // MARK: - fetchOAuthToken
-    
-    func fetchOAuthToken(_ code: String, completion: @escaping (Result<String, Error>) -> Void) {
+}
+
+// MARK: - Creating an authentication token url
+
+private extension OAuth2Service {
+    func authTokenRequest(code: String) -> URLRequest? {
+        let urlString = Constants.unsplashTokenURLString
+        var components = URLComponents(string: urlString)
         
-        guard var components = URLComponents(string: "https://unsplash.com/oauth/token") else { return }
-        
-        components.queryItems = [
+        components?.queryItems = [
             URLQueryItem(name: "client_id", value: Constants.accessKey),
             URLQueryItem(name: "client_secret", value: Constants.secretKey),
             URLQueryItem(name: "redirect_uri", value: Constants.redirectURI),
@@ -36,96 +61,63 @@ final class OAuth2Service {
             URLQueryItem(name: "grant_type", value: "authorization_code")
         ]
         
-        if let url = components.url {
-            print("URL: \(url)")
-            
-            var request = URLRequest(url: url)
-            request.httpMethod = "POST"
-            print("Request: \(request)")
-            
-            let task = URLSession.shared.dataTask(with: request) { data, response, error in
-                if let error = error {
-                    print("Error: \(error)")
-                    DispatchQueue.main.async {
-                        completion(.failure(error))
-                    }
-                    return
-                }
-                
-                // Проверяем статус-код
-                if let response = response as? HTTPURLResponse {
-                    // Интерполяция должна работать правильно
-                    print("HTTP Status Code: \(response.statusCode)")
-                    
-                    if response.statusCode < 200 || response.statusCode >= 300 {
-                        // Печатаем содержимое ответа для дополнительной информации
-                        if let data = data, let responseBody = String(data: data, encoding: .utf8) {
-                            print("Response Body: \(responseBody)")
-                        }
-                        DispatchQueue.main.async {
-                            completion(.failure(OAuthError.codeError))
-                        }
-                        return
-                    }
-                    
-                }
-                
-                guard let data = data else {
-                    print("No data returned")
-                    DispatchQueue.main.async {
-                        completion(.failure(OAuthError.decodeError))
-                    }
-                    return
-                }
-                
-                
-                do {
-                    let json = try JSONDecoder().decode(OAuthTokenResponseBody.self, from: data)
-                    OAuth2TokenStorage().token = json.accessToken
-                    print("Access Token: \(json.accessToken)")
-                    DispatchQueue.main.async {
-                        completion(.success(json.accessToken))
-                    }
-                } catch {
-                    print("Decoding error: \(error)")
-                    DispatchQueue.main.async {
-                        completion(.failure(OAuthError.decodeError))
-                    }
-                }
-            }
-            task.resume()
+        guard let url = components?.url else {
+            print("authTokenRequest: не удалось создать URL-адрес.\n") // Принт ошибки создания URL
+            fatalError("Failed to create URL")
         }
+        
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        print("authTokenRequest: создан запрос токена аутентификации: \(request).\n") // Принт созданного запроса
+        return request
     }
 }
 
+// MARK: - Extracting the authentication token
 
-// MARK: - extension URLSession
-
-extension URLSession {
-    func data(
-        for request: URLRequest,
-        completion: @escaping (Result<Data, Error>) -> Void
-    ) -> URLSessionTask {
-        let fulfillCompletionOnTheMainThread: (Result<Data, Error>) -> Void = { result in
-            DispatchQueue.main.async {
-                completion(result)
-            }
+extension OAuth2Service {
+    func fetchOAuthToken(_ code: String, completion: @escaping(Result<String, Error>) -> Void) {
+        assert(Thread.isMainThread) // Проверка на главный поток
+        print("fetchOAuthToken: вызывается с помощью кода: \(code).\n") // Принт вызова функции
+        
+        // Если существует активная задача
+        if lastCode == code {
+            print("fetchOAuthToken: последний код совпадает, завершение функции.\n") // Принт завершения
+            return
         }
         
-        let task = dataTask(with: request, completionHandler: { data, response, error in
-            if let data = data, let response = response, let statusCode = (response as? HTTPURLResponse)?.statusCode {
-                if 200 ..< 300 ~= statusCode {
-                    fulfillCompletionOnTheMainThread(.success(data))
-                } else {
-                    fulfillCompletionOnTheMainThread(.failure(NetworkError.httpStatusCode(statusCode)))
-                }
-            } else if let error = error {
-                fulfillCompletionOnTheMainThread(.failure(NetworkError.urlRequestError(error)))
-            } else {
-                fulfillCompletionOnTheMainThread(.failure(NetworkError.urlSessionError))
-            }
-        })
+        task?.cancel()
+        lastCode = code // Сохраняем текущий код
         
-        return task
+        print("fetchOAuthToken: последний код не совпадает, возвращается ошибка.\n") // Принт ошибки
+        completion(.failure(OAuthError.codeError))
+        
+        // Формируем запрос
+        guard let request = authTokenRequest(code: code) else { return }
+        print("fetchOAuthToken: не удалось создать запрос.\n") // Принт неудачи
+        
+        // Создаём задачу
+        let task = urlSession.objectTask(for: request) { [weak self] (result: Result<OAuthTokenResponseBody, Error>) in
+            DispatchQueue.main.async {
+                guard let self else { return }
+                switch result {
+                case .success(let body):
+                    let authToken = body.accessToken
+                    self.authToken = authToken
+                    print("fetchOAuthToken: успешно получен токен аутентификации: \(authToken).\n") // Принт успешного получения токена
+                    completion(.success(authToken))
+                case .failure(let error):
+                    self.lastCode = nil
+                    print("fetchOAuthToken: ошибка при получении токена аутентификации: \(error.localizedDescription).\n") // Принт ошибки
+                    completion(.failure(error))
+                }
+                // Сброс состояния
+                self.task = nil
+                self.lastCode = nil
+            }
+        }
+        self.task = task // Сохраняем текущую задачу
+        print("fetchOAuthToken: запуск задачи для получения токена аутентификации.\n") // Принт начала задачи
+        task.resume() // Запускаем задачу
     }
 }
