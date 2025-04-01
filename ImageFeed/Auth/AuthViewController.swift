@@ -33,17 +33,14 @@ final class AuthViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
         setupUI()
     }
-    
-    // MARK: prepare UIStoryboardSegue
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == showWebViewSegueIdentifier {
             guard
                 let webViewController = segue.destination as? WebViewController
-            else { return /*fatalError("Failed to prepare for \(showWebViewSegueIdentifier)")*/ }
+            else { return }
             webViewController.delegate = self
         } else {
             super.prepare(for: segue, sender: sender)
@@ -51,28 +48,9 @@ final class AuthViewController: UIViewController {
     }
 }
 
-// MARK: - UI Configuration
+// MARK: - Private Methods
 
 private extension AuthViewController {
-    func setupUI() {
-        startButton.titleLabel?.font = LayoutConstants.ysDisplayBold
-        
-        configureNavigationBar()
-    }
-    
-    // MARK: Configuring the navigation bar
-    
-     func configureNavigationBar() {
-        navigationController?.navigationBar.backIndicatorImage = ImageConstants.navBackButton
-        navigationController?.navigationBar.backIndicatorTransitionMaskImage = ImageConstants.navBackButton
-        navigationItem.backBarButtonItem = UIBarButtonItem(
-            title: String(),
-            style: .plain,
-            target: nil,
-            action: nil
-        )
-        navigationItem.backBarButtonItem?.tintColor = ColorConstants.ypBlack
-    }
     
     @objc func didTapStartButton() {
         // Инициализируем WebViewController
@@ -83,19 +61,28 @@ private extension AuthViewController {
     }
 }
 
-// MARK: - Constants
+// MARK: - UI Configuration
 
 private extension AuthViewController {
-    enum LayoutConstants {
-        static let ysDisplayBold: UIFont = .init(name: "YSDisplay-Bold", size: 17) ?? UIFont.systemFont(ofSize: 17)
+    
+    func setupUI() {
+        startButton.titleLabel?.font = FontsConstants.ysDisplayBold
+        
+        configureNavigationBar()
     }
     
-    enum ImageConstants {
-        static let navBackButton: UIImage = .init(named: "nav_back_button") ?? UIImage()
-    }
+    // MARK: Configuring the navigation bar
     
-    enum ColorConstants {
-        static let ypBlack: UIColor = .init(named: "ypBlack") ?? UIColor.black
+    func configureNavigationBar() {
+        navigationController?.navigationBar.backIndicatorImage = ImageConstants.navBackButton
+        navigationController?.navigationBar.backIndicatorTransitionMaskImage = ImageConstants.navBackButton
+        navigationItem.backBarButtonItem = UIBarButtonItem(
+            title: String(),
+            style: .plain,
+            target: nil,
+            action: nil
+        )
+        navigationItem.backBarButtonItem?.tintColor = ColorConstants.ypBlack
     }
 }
 
@@ -110,5 +97,28 @@ extension AuthViewController: WebViewControllerDelegate {
     func webViewControllerDidCancel(_ vc: WebViewController) {
         dismiss(animated: true)
         UIBlockingProgressHUD.dismiss()
+    }
+}
+
+// MARK: - Constants
+
+private extension AuthViewController {
+    
+    // MARK: FontsConstants
+    
+    enum FontsConstants {
+        static let ysDisplayBold: UIFont = .init(name: "YSDisplay-Bold", size: 17) ?? UIFont.systemFont(ofSize: 17)
+    }
+    
+    // MARK: ImageConstants
+    
+    enum ImageConstants {
+        static let navBackButton: UIImage = .init(named: "nav_back_button") ?? UIImage()
+    }
+    
+    // MARK: ColorConstants
+    
+    enum ColorConstants {
+        static let ypBlack: UIColor = .init(named: "ypBlack") ?? UIColor.black
     }
 }

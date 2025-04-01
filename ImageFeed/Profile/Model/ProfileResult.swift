@@ -7,6 +7,8 @@
 
 import Foundation
 
+// MARK: ProfileResult
+
 struct ProfileResult: Codable {
     let id: String
     let username: String
