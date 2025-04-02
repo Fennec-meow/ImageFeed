@@ -28,6 +28,7 @@ final class ImagesListViewController: UIViewController {
         let formatter = DateFormatter()
         formatter.dateStyle = .long
         formatter.timeStyle = .none
+        formatter.locale = Locale(identifier: "ru_RU")
         return formatter
     }()
     
@@ -45,7 +46,9 @@ final class ImagesListViewController: UIViewController {
             guard
                 let viewController = segue.destination as? SingleImageViewController,
                 let indexPath = sender as? IndexPath else {
-                assertionFailure("Invalid segue destination")
+                /// Так лучше?)
+                print("Ошибка: не удалось передать данные. Неверный идентификатор перехода или некорректный sender.")
+//                assertionFailure("Invalid segue destination")
                 return
             }
             
@@ -121,13 +124,15 @@ private extension ImagesListViewController {
         
         print("updateTableViewAnimated: старая количество фотографий: \(oldCount), новая количество: \(newCount)\n")
         
-        tableView.performBatchUpdates({
-            if newCount > oldCount {
-                let indexPaths = (oldCount..<newCount).map { IndexPath(row: $0, section: 0) }
-                tableView.insertRows(at: indexPaths, with: .automatic)
+        DispatchQueue.main.async {
+            self.tableView.performBatchUpdates({
+                if newCount > oldCount {
+                    let indexPaths = (oldCount..<newCount).map { IndexPath(row: $0, section: 0) }
+                    self.tableView.insertRows(at: indexPaths, with: .automatic)
+                }
+            }) { _ in
+                print("updateTableViewAnimated: обновлено количество фотографий: \(self.photos.count)") // Отладочное сообщение
             }
-        }) { _ in
-            print("updateTableViewAnimated: обновлено количество фотографий: \(self.photos.count)") // Отладочное сообщение
         }
     }
     
@@ -226,18 +231,21 @@ extension ImagesListViewController: ImagesListCellDelegate {
         
         imagesListService.changeLike(photoId: photo.id, isLike: photo.isLiked) { [weak self] result in
             guard let self else { return }
-            switch result {
-            case .success:
-                print("imageListCellDidTapLike: лайк успешно обновлен для фотографии с id: \(photo.id)\n")
-                
-                // Обновляем состояние локально
-                self.photos[indexPath.row].isLiked = photo.isLiked
-                self.setIsLiked(for: cell, isLiked: photo.isLiked)
-                UIBlockingProgressHUD.dismiss()
-            case .failure:
-                UIBlockingProgressHUD.dismiss()
-                print("imageListCellDidTapLike: не удалось обновить лайк для фотографии с id: \(photo.id)\n") // Обработка ошибки
-                self.showError("Не удалось обновить состояние лайка. Попробуйте еще раз.") // Вызов ошибки
+            
+            DispatchQueue.main.async {
+                switch result {
+                case .success:
+                    print("imageListCellDidTapLike: лайк успешно обновлен для фотографии с id: \(photo.id)\n")
+                    
+                    // Обновляем состояние локально
+                    self.photos[indexPath.row].isLiked = photo.isLiked
+                    self.setIsLiked(for: cell, isLiked: photo.isLiked)
+                    UIBlockingProgressHUD.dismiss()
+                case .failure:
+                    UIBlockingProgressHUD.dismiss()
+                    print("imageListCellDidTapLike: не удалось обновить лайк для фотографии с id: \(photo.id)\n") // Обработка ошибки
+                    self.showError("Не удалось обновить состояние лайка. Попробуйте еще раз.") // Вызов ошибки
+                }
             }
         }
     }
