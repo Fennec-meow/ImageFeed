@@ -50,8 +50,7 @@ extension ImagesListService {
         let nextPage: Page
         if let lastLoadedPage = lastLoadedPage {
             nextPage = Page(number: lastLoadedPage.number + 1, perPage: 10)
-        }
-        else {
+        } else {
             nextPage = Page(number: 1, perPage: 10)
         }
         
@@ -84,9 +83,11 @@ extension ImagesListService {
                     isLiked: photoResult.likedByUser
                 )}
             
-            self.photos += photos
-            self.lastLoadedPage = nextPage
-            self.notificationCenter.post(name: Self.didChangeNotification, object: self)
+            DispatchQueue.main.async {
+                self.photos += photos
+                self.lastLoadedPage = nextPage
+                self.notificationCenter.post(name: Self.didChangeNotification, object: self)
+            }
         })
         
         task.resume()
