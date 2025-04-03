@@ -16,16 +16,12 @@ final class ProfileService {
     static let shared = ProfileService()
     private init() {}
     
-    // MARK: URLSession
-    
-    private let urlSession = URLSession.shared
-    
     // MARK: Private Property
     
-    private(set) var profile: Profile?
+    private let urlSession = URLSession.shared
     private var task: URLSessionTask?
+    private(set) var profile: Profile?
     private var lastToken: String?
-    
 }
 
 // MARK: - fetchProfile
@@ -76,15 +72,32 @@ extension ProfileService {
     }
 }
 
-// MARK: - createRequest
+// MARK: - Private Methods
 
 private extension ProfileService {
     func createRequest(with token: String) -> URLRequest {
-        var request = URLRequest(url: URL(string: Constants.baseURL) ?? URL(fileURLWithPath: ""))
-        request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
-        request.httpMethod = "GET"
+        var request = UrlConstants.urlRequest
+        request.setValue("Bearer \(token)", forHTTPHeaderField: HttpMethodConstants.forHTTPHeaderField)
+        request.httpMethod = HttpMethodConstants.httpMethodGET
         print("createRequest: создан запрос с токеном: \(token).\n") // Принт созданного запроса
         return request
     }
 }
 
+// MARK: - Constants
+
+private extension ProfileService {
+    
+    // MARK: UrlConstants
+    
+    enum UrlConstants {
+        static let urlRequest = URLRequest(url: URL(string: Constants.baseURL) ?? URL(fileURLWithPath: String()))
+    }
+    
+    // MARK: HttpMethodConstants
+    
+    enum HttpMethodConstants {
+        static let httpMethodGET = "GET"
+        static let forHTTPHeaderField = "Authorization"
+    }
+}

@@ -1,5 +1,5 @@
 //
-//  Profile.swift
+//  StructProfile.swift
 //  ImageFeed
 //
 //  Created by Kira on 03.03.2025.

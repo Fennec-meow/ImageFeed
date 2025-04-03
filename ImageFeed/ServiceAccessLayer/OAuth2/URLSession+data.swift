@@ -38,7 +38,7 @@ extension URLSession {
                     completion(.failure(NetworkError.urlSessionError))
                     return
                 }
-                guard let data = data else { return }
+                guard let data else { return }
                 
                 do {
                     let decodedObject = try JSONDecoder().decode(T.self, from: data)

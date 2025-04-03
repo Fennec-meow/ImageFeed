@@ -17,32 +17,15 @@ final class OAuth2Service {
     static let shared = OAuth2Service()
     private init() {}
     
-    // MARK: URLSession
-    
-    // Объявляем и инициализируем переменную URLSession.
-    private let urlSession = URLSession.shared
-    
     // MARK: Private Property
     
-    private(set) var authToken: String? {
-        get {
-            return SwiftKeychainWrapper().getToken()
-        }
-        set {
-            SwiftKeychainWrapper().setToken(token: newValue)
-        }
-    }
-    
-    // Переменная для хранения указателя на последнюю созданную задачу. Если активных задач нет, то значение будет nil.
+    private let urlSession = URLSession.shared
     private var task: URLSessionTask?
-    
-    // Переменная для хранения значения code, которое было передано в последнем созданном запросе.
     private var lastCode: String?
     
-    // MARK: OAuthError
-    
-    private enum OAuthError: Error {
-        case codeError, decodeError
+    private(set) var authToken: String? {
+        get { return SwiftKeychainWrapper().getToken() }
+        set { SwiftKeychainWrapper().setToken(token: newValue) }
     }
 }
 
@@ -119,5 +102,13 @@ extension OAuth2Service {
         self.task = task // Сохраняем текущую задачу
         print("fetchOAuthToken: запуск задачи для получения токена аутентификации.\n") // Принт начала задачи
         task.resume() // Запускаем задачу
+    }
+}
+
+// MARK: - Enum OAuthError
+
+private extension OAuth2Service {
+    enum OAuthError: Error {
+        case codeError, decodeError
     }
 }

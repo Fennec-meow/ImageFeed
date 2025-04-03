@@ -11,13 +11,11 @@ import UIKit
 
 final class SplashViewController: UIViewController {
     
-    // MARK: Service
-    
-    private let oauth2Service = OAuth2Service.shared
-    private let profileService = ProfileService.shared
-    private let profileImageService = ImageFeed.ProfileImageService.shared
-    
     // MARK: Private Property
+    
+    private let profileImageService = ImageFeed.ProfileImageService.shared
+    private let profileService = ProfileService.shared
+    private let oauth2Service = OAuth2Service.shared
     
     private let showAuthenticationScreenSegueIdentifier = "ShowAuthentication"
     
@@ -26,7 +24,7 @@ final class SplashViewController: UIViewController {
     // MARK: UI Components
     
     private lazy var vectorImageView: UIImageView = {
-        let imageView = UIImageView(image: UIImage(named: "Vector"))
+        let imageView = ImageConstants.vectorImageView
         imageView.contentMode = .scaleAspectFit
         imageView.translatesAutoresizingMaskIntoConstraints = false
         return imageView
@@ -38,7 +36,6 @@ final class SplashViewController: UIViewController {
         super.viewDidLoad()
         
         view.backgroundColor = .ypBlack
-        
         setupContent()
         setupConstraints()
     }
@@ -61,7 +58,7 @@ final class SplashViewController: UIViewController {
                 guard let authViewController = storyboard.instantiateViewController(withIdentifier: "AuthViewController") as? AuthViewController else { return }
                 authViewController.delegate = self
                 authViewController.modalPresentationStyle = .fullScreen
-                                print("viewDidAppear: токен не найден, переход к AuthViewController.\n") // Принт перехода к экрану аутентификации
+                print("viewDidAppear: токен не найден, переход к AuthViewController.\n") // Принт перехода к экрану аутентификации
                 self.present(authViewController, animated: true)
                 UIBlockingProgressHUD.dismiss()
             }
@@ -76,10 +73,12 @@ final class SplashViewController: UIViewController {
     override var preferredStatusBarStyle: UIStatusBarStyle {
         .lightContent
     }
-    
-    // MARK: Private methods
-    
-    private func switchToTabBarController() {
+}
+
+// MARK: Private methods
+
+private extension SplashViewController {
+    func switchToTabBarController() {
         
         guard Thread.isMainThread else {
             DispatchQueue.main.async {
@@ -143,7 +142,6 @@ extension SplashViewController: AuthViewControllerDelegate {
                 self.switchToTabBarController()
             case .failure(let error):
                 UIBlockingProgressHUD.dismiss()
-//                self.showAlert()  // как я пониамю надо было тут убрать вызов, тогда при удачном запуске не будет показывать алерт
                 print("fetchOAuthToken: ошибка при получении токена: \(error.localizedDescription).\n") // Принт ошибки получения токена
                 break
             }
@@ -173,7 +171,6 @@ extension SplashViewController: AuthViewControllerDelegate {
                             print("fetchProfile: ошибка при получении URL аватара.\n") // Принт ошибки получения URL аватара
                             return
                         }
-                        
                     }
                     UIBlockingProgressHUD.dismiss()
                     self.switchToTabBarController()
@@ -229,3 +226,13 @@ extension SplashViewController {
     }
 }
 
+// MARK: - Constants
+
+private extension SplashViewController {
+    
+    // MARK: ImageConstants
+    
+    enum ImageConstants {
+        static let vectorImageView = UIImageView(image: UIImage(named: "Vector"))
+    }
+}

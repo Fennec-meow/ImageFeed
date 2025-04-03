@@ -8,29 +8,21 @@
 import UIKit
 import Foundation
 import Kingfisher
+import WebKit
 
 // MARK: - ProfileViewController
 
 final class ProfileViewController: UIViewController {
     
-    // MARK: ProfileService
-    
-    let profileService = ProfileService.shared
-    let profileImageService = ProfileImageService.shared
-    
-    // MARK: Public Property
-    
-    let splashViewController = SplashViewController()
-    
-    var username: String? = String()
-    
     // MARK: Private Property
     
+    private let profileImageService = ProfileImageService.shared
+    private let profileService = ProfileService.shared
+    private let splashViewController = SplashViewController()
     private let swiftKeychainWrapper = SwiftKeychainWrapper()
+    private var username: String? = String()
     
     private var profileImageServiceObserver: NSObjectProtocol?
-    
-    // MARK: UI Components
     
     private lazy var ui: UI = {
         let ui = createUI()
@@ -43,23 +35,10 @@ final class ProfileViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        updateAvatar(notification: .init(name: .init("ProfileImageService.didChangeNotification")))
-        
-        updateProfileDetails()
         view.backgroundColor = .ypBlack
+        updateAvatar(notification: .init(name: .init(StringConstants.updateAvatar)))
+        updateProfileDetails()
         getAvatar()
-    }
-    
-    // MARK: updateProfileDetails
-    
-    private func updateProfileDetails() {
-        guard let profile = profileService.profile else {
-            return
-        }
-        self.username = profile.userName
-        ui.nameLabel.text = profile.name
-        ui.loginNameLabel.text = profile.loginName
-        ui.descriptionLabel.text = profile.bio
     }
     
     // Перегружаем конструктор
@@ -75,44 +54,10 @@ final class ProfileViewController: UIViewController {
         addObserver()
     }
     
-    //     Определяем деструктор
+    // MARK: Deinit (Destructor)
+    
     deinit {
         removeObserver()
-    }
-    
-    private func addObserver() {
-        NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(updateAvatar(notification:)),
-            name: ProfileImageService.didChangeNotification,
-            object: nil)
-    }
-    
-    private func removeObserver() {
-        NotificationCenter.default.removeObserver(
-            self,
-            name: ProfileImageService.didChangeNotification,
-            object: nil)
-    }
-    
-    @objc private func updateAvatar(notification: Notification) {
-        DispatchQueue.main.async {
-            guard
-                let profileImageURL = ProfileImageService.shared.avatarURL,
-                let url = URL(string: profileImageURL)
-            else { return }
-            let processor = RoundCornerImageProcessor(
-                cornerRadius: 61,
-                backgroundColor: .clear
-            )
-            self.ui.avatarImageView.kf.indicatorType = .activity
-            self.ui.avatarImageView.kf.setImage(
-                with: url,
-                placeholder: nil,
-                options: [
-                    .processor(processor)
-                ])
-        }
     }
 }
 
@@ -138,7 +83,7 @@ private extension ProfileViewController {
                     self.ui.avatarImageView.kf.indicatorType = .activity
                     self.ui.avatarImageView.kf.setImage(
                         with: url,
-                        placeholder: UIImage(named: "person.circle"),
+                        placeholder: ImageConstants.personCircle,
                         options: [
                             .processor(processor),
                             .scaleFactor(UIScreen.main.scale),
@@ -150,6 +95,107 @@ private extension ProfileViewController {
                 print("getAvatar: \(error) when loading avatar \n.")
             }
         }
+    }
+    
+    func addObserver() {
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(updateAvatar(notification:)),
+            name: ProfileImageService.didChangeNotification,
+            object: nil)
+    }
+    
+    func removeObserver() {
+        NotificationCenter.default.removeObserver(
+            self,
+            name: ProfileImageService.didChangeNotification,
+            object: nil)
+    }
+    
+    func updateProfileDetails() {
+        guard let profile = profileService.profile else {
+            return
+        }
+        self.username = profile.userName
+        ui.nameLabel.text = profile.name
+        ui.loginNameLabel.text = profile.loginName
+        ui.descriptionLabel.text = profile.bio
+    }
+    
+    @objc func didTapLogoutButton() {
+        let alert = UIAlertController(
+            title: "Пока, пока!",
+            message: "Уверены что хотите выйти?",
+            preferredStyle: .alert
+        )
+        
+        alert.addAction(UIAlertAction(
+            title: "Да",
+            style: .default,
+            handler: { [weak self] _ in
+                guard let self else { return }
+                logout()
+            }))
+        
+        alert.addAction(UIAlertAction(
+            title: "Нет",
+            style: .default,
+            handler: { _ in
+            }))
+        present(alert, animated: true)
+    }
+    
+    @objc func updateAvatar(notification: Notification) {
+        DispatchQueue.main.async {
+            guard
+                let profileImageURL = ProfileImageService.shared.avatarURL,
+                let url = URL(string: profileImageURL)
+            else { return }
+            let processor = RoundCornerImageProcessor(
+                cornerRadius: 61,
+                backgroundColor: .clear
+            )
+            self.ui.avatarImageView.kf.indicatorType = .activity
+            self.ui.avatarImageView.kf.setImage(
+                with: url,
+                placeholder: nil,
+                options: [
+                    .processor(processor)
+                ]
+            )
+        }
+    }
+    
+    func switchToSplashScreen() {
+        guard let window = UIApplication.shared.windows.first else { fatalError("Fatal Error") }
+        window.rootViewController = splashViewController
+    }
+}
+
+// MARK: - clearStorage
+
+private extension ProfileViewController {
+    
+    func logout() {
+        clearStorage()
+        clearToken()
+        switchToSplashScreen()
+    }
+    
+    func clearStorage() {
+        // Очищаем все куки из хранилища.
+        HTTPCookieStorage.shared.removeCookies(since: Date.distantPast)
+        // Запрашиваем все данные из локального хранилища.
+        WKWebsiteDataStore.default().fetchDataRecords(ofTypes: WKWebsiteDataStore.allWebsiteDataTypes()) { records in
+            // Массив полученных записей удаляем из хранилища.
+            records.forEach { record in
+                WKWebsiteDataStore.default().removeData(ofTypes: record.dataTypes, for: [record], completionHandler: {})
+            }
+        }
+    }
+    
+    func clearToken() {
+        swiftKeychainWrapper.deleteToken()
     }
 }
 
@@ -174,33 +220,35 @@ private extension ProfileViewController {
         
         let avatarImageView = UIImageView()
         avatarImageView.translatesAutoresizingMaskIntoConstraints = false
-        avatarImageView.image = UIImage(named: "avatar")
-        avatarImageView.layer.cornerRadius = 61
+        avatarImageView.image = ImageConstants.avatarImage
+        avatarImageView.layer.cornerRadius = 35
+        avatarImageView.layer.masksToBounds = true
+        
         view.addSubview(avatarImageView)
         
         let nameLabel = UILabel()
         nameLabel.translatesAutoresizingMaskIntoConstraints = false
         nameLabel.text = "Екатерина Новикова"
-        nameLabel.font = UIFont(name: "YSDisplay-Bold", size: 23)
+        nameLabel.font = FontsConstants.ysDisplayBold
         nameLabel.textColor = .ypWhite
         view.addSubview(nameLabel)
         
         let loginNameLabel = UILabel()
         loginNameLabel.translatesAutoresizingMaskIntoConstraints = false
         loginNameLabel.text = "@ekaterina_nov"
-        loginNameLabel.font = UIFont(name: "YSDisplay-Medium", size: 13)
+        loginNameLabel.font = FontsConstants.ysDisplayMedium
         loginNameLabel.textColor = .ypGray
         view.addSubview(loginNameLabel)
         
         let descriptionLabel = UILabel()
         descriptionLabel.translatesAutoresizingMaskIntoConstraints = false
         descriptionLabel.text = "Hello, world!"
-        descriptionLabel.font = UIFont(name: "YSDisplay-Medium", size: 13)
+        descriptionLabel.font = FontsConstants.ysDisplayMedium
         descriptionLabel.textColor = .ypWhite
         view.addSubview(descriptionLabel)
         
         let logoutButton = UIButton.systemButton(
-            with: UIImage(named: "logout_button") ?? UIImage(),
+            with: ImageConstants.logoutButton,
             target: self,
             action: #selector(didTapLogoutButton)
         )
@@ -242,10 +290,30 @@ private extension ProfileViewController {
             
         ])
     }
+}
+
+// MARK: - Constants
+
+private extension ProfileViewController {
     
-    // MARK: The exit button from your personal account
+    // MARK: FontsConstants
     
-    @objc func didTapLogoutButton() {
-        print("logout_button \n")
+    enum FontsConstants {
+        static let ysDisplayBold: UIFont = .init(name: "YSDisplay-Bold", size: 23) ?? UIFont.systemFont(ofSize: 23)
+        static let ysDisplayMedium: UIFont = .init(name: "YSDisplay-Medium", size: 13) ?? UIFont.systemFont(ofSize: 13)
+    }
+    
+    // MARK: ImageConstants
+    
+    enum ImageConstants {
+        static let avatarImage = UIImage(named: "avatar")
+        static let logoutButton = UIImage(named: "logout_button") ?? UIImage()
+        static let personCircle = UIImage(named: "person.circle")
+    }
+    
+    // MARK: StringConstants
+    
+    enum StringConstants {
+        static let updateAvatar = "ProfileImageService.didChangeNotification"
     }
 }

@@ -7,6 +7,7 @@
 
 import Foundation
 
+// MARK: UserResult
 
 struct UserResult: Codable {
     let profileImage: ProfileImage
@@ -16,7 +17,7 @@ struct UserResult: Codable {
     }
 }
 
-// MARK:  ProfileImage
+// MARK: ProfileImage
 
 struct ProfileImage: Codable {
     let small: String

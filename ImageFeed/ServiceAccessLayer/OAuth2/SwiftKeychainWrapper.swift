@@ -8,6 +8,8 @@
 import Foundation
 import SwiftKeychainWrapper
 
+// MARK: - SwiftKeychainWrapper
+
 final class SwiftKeychainWrapper {
     
     func setToken(token: String?) {
@@ -19,5 +21,9 @@ final class SwiftKeychainWrapper {
     }
     func getToken() -> String? {
         return KeychainWrapper.standard.string(forKey: "Auth token")
+    }
+    
+    func deleteToken() {
+        KeychainWrapper.standard.removeObject(forKey: "Auth token")
     }
 }
