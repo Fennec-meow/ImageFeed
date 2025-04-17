@@ -22,7 +22,10 @@ private extension TabBarController {
         let storyboard = UIStoryboard(name: "Main", bundle: .main)
         
         // Настройка ImagesListViewController
-        let imagesListViewController = storyboard.instantiateViewController(withIdentifier: StringConstants.imagesListViewController)
+        let imagesListPresenter = ImagesListPresenter()
+        let imagesListViewController = storyboard.instantiateViewController(withIdentifier: StringConstants.imagesListViewController) as! ImagesListViewController
+        imagesListViewController.presenter = imagesListPresenter
+        imagesListPresenter.view = imagesListViewController
         imagesListViewController.tabBarItem = UITabBarItem(
             title: String(),
             image: ImageConstants.tabEditorialActive,
@@ -30,7 +33,9 @@ private extension TabBarController {
         )
         
         // Настройка ProfileViewController
-        let profileViewController = ProfileViewController()
+        let profilePresenter = ProfilePresenter()
+        let profileViewController = ProfileViewController(presenter: profilePresenter)
+        profilePresenter.view = profileViewController
         profileViewController.tabBarItem = UITabBarItem(
             title: String(),
             image: ImageConstants.tabProfileActive,

@@ -42,5 +42,6 @@ private extension ImagesListCell {
     
     @IBAction private func likeButtonClicked() {
         delegate?.imageListCellDidTapLike(self)
+        self.accessibilityIdentifier = "like_button_on"
     }
 }

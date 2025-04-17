@@ -6,49 +6,57 @@
 //
 
 import UIKit
-import Foundation
 import Kingfisher
 import WebKit
+
+// MARK: - ProfileViewControllerProtocol
+
+protocol ProfileViewControllerProtocol: AnyObject {
+   var presenter: ProfilePresenterProtocol? { get set }
+    func updatePicture(url: URL)
+    func showProgressHUD()
+    func hideProgressHUD()
+    func updateProfileView(profile: Profile?)
+    func switchToSplashScreen()
+}
 
 // MARK: - ProfileViewController
 
 final class ProfileViewController: UIViewController {
     
+    // MARK: Public Property
+    
+    var presenter: ProfilePresenterProtocol?
+    
     // MARK: Private Property
     
-    private let profileImageService = ProfileImageService.shared
-    private let profileService = ProfileService.shared
     private let splashViewController = SplashViewController()
-    private let swiftKeychainWrapper = SwiftKeychainWrapper()
-    private var username: String? = String()
-    
-    private var profileImageServiceObserver: NSObjectProtocol?
-    
+
     private lazy var ui: UI = {
         let ui = createUI()
         layout(ui)
         return ui
     }()
     
+    // MARK: Constructor
+    
+    init(presenter: ProfilePresenterProtocol) {
+        super.init(nibName: nil, bundle: nil)
+        self.presenter = presenter
+    }
+    
     // MARK: Lifecycle
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        presenter?.viewDidLoad()
+        presenter?.getAvatar()
+        setupUI()
         
-        view.backgroundColor = .ypBlack
+        
         updateAvatar(notification: .init(name: .init(StringConstants.updateAvatar)))
-        updateProfileDetails()
-        getAvatar()
     }
     
-    // Перегружаем конструктор
-    override init(nibName: String?, bundle: Bundle?) {
-        super.init(nibName: nibName, bundle: bundle)
-        addObserver()
-    }
-    
-    // Определяем конструктор, необходимый при декодировании
-    // класса из Storyboard
     required init?(coder: NSCoder) {
         super.init(coder: coder)
         addObserver()
@@ -61,41 +69,51 @@ final class ProfileViewController: UIViewController {
     }
 }
 
+// MARK: - ProfileViewControllerProtocol
+
+extension ProfileViewController: ProfileViewControllerProtocol {
+    func updatePicture(url: URL) {
+        DispatchQueue.main.async {
+            let processor = RoundCornerImageProcessor(
+                cornerRadius: 61,
+                backgroundColor: .clear
+            )
+            self.ui.avatarImageView.kf.indicatorType = .activity
+            self.ui.avatarImageView.kf.setImage(
+                with: url,
+                placeholder: ImageConstants.personCircle,
+                options: [
+                    .processor(processor),
+                    .scaleFactor(UIScreen.main.scale),
+                    .transition(.fade(1)),
+                    .cacheOriginalImage
+                ])
+        }
+    }
+    
+    func showProgressHUD() {
+        UIBlockingProgressHUD.show()
+    }
+    
+    func hideProgressHUD() {
+        UIBlockingProgressHUD.dismiss()
+    }
+    
+    func updateProfileView(profile: Profile?) {
+        ui.nameLabel.text = profile?.name
+        ui.loginNameLabel.text = profile?.loginName
+        ui.descriptionLabel.text = profile?.bio
+    }
+    
+    func switchToSplashScreen() {
+        guard let window = UIApplication.shared.windows.first else { fatalError("Fatal Error") }
+        window.rootViewController = splashViewController
+    }
+}
+
 // MARK: - Private Methods
 
 private extension ProfileViewController {
-    func getAvatar() {
-        UIBlockingProgressHUD.show()
-        profileImageService.fetchProfileImageURL(username ?? String()) { [weak self] result in
-            guard let self else { return }
-            UIBlockingProgressHUD.dismiss()
-            switch result {
-            case .success(let stringUrl):
-                guard
-                    let url = URL(string: stringUrl)
-                else { return }
-                DispatchQueue.main.async {
-                    let processor = RoundCornerImageProcessor(
-                        cornerRadius: 61,
-                        backgroundColor: .clear
-                    )
-                    UIBlockingProgressHUD.dismiss()
-                    self.ui.avatarImageView.kf.indicatorType = .activity
-                    self.ui.avatarImageView.kf.setImage(
-                        with: url,
-                        placeholder: ImageConstants.personCircle,
-                        options: [
-                            .processor(processor),
-                            .scaleFactor(UIScreen.main.scale),
-                            .transition(.fade(1)),
-                            .cacheOriginalImage
-                        ])
-                }
-            case let .failure(error):
-                print("getAvatar: \(error) when loading avatar \n.")
-            }
-        }
-    }
     
     func addObserver() {
         NotificationCenter.default.addObserver(
@@ -110,39 +128,6 @@ private extension ProfileViewController {
             self,
             name: ProfileImageService.didChangeNotification,
             object: nil)
-    }
-    
-    func updateProfileDetails() {
-        guard let profile = profileService.profile else {
-            return
-        }
-        self.username = profile.userName
-        ui.nameLabel.text = profile.name
-        ui.loginNameLabel.text = profile.loginName
-        ui.descriptionLabel.text = profile.bio
-    }
-    
-    @objc func didTapLogoutButton() {
-        let alert = UIAlertController(
-            title: "Пока, пока!",
-            message: "Уверены что хотите выйти?",
-            preferredStyle: .alert
-        )
-        
-        alert.addAction(UIAlertAction(
-            title: "Да",
-            style: .default,
-            handler: { [weak self] _ in
-                guard let self else { return }
-                logout()
-            }))
-        
-        alert.addAction(UIAlertAction(
-            title: "Нет",
-            style: .default,
-            handler: { _ in
-            }))
-        present(alert, animated: true)
     }
     
     @objc func updateAvatar(notification: Notification) {
@@ -166,36 +151,39 @@ private extension ProfileViewController {
         }
     }
     
-    func switchToSplashScreen() {
-        guard let window = UIApplication.shared.windows.first else { fatalError("Fatal Error") }
-        window.rootViewController = splashViewController
+    @objc func didTapLogoutButton() {
+        let alert = UIAlertController(
+            title: "Пока, пока!",
+            message: "Уверены что хотите выйти?",
+            preferredStyle: .alert
+        )
+        
+        let yesAction = UIAlertAction(
+            title: "Да",
+            style: .default,
+            handler: { [weak self] _ in
+                guard let self else { return }
+                presenter?.logout()
+            })
+        yesAction.accessibilityIdentifier = "Да"
+        
+        alert.addAction(yesAction)
+        
+        alert.addAction(UIAlertAction(
+            title: "Нет",
+            style: .default,
+            handler: { _ in
+            }))
+        present(alert, animated: true)
     }
 }
 
-// MARK: - clearStorage
+// MARK: - UI Configuration
 
 private extension ProfileViewController {
     
-    func logout() {
-        clearStorage()
-        clearToken()
-        switchToSplashScreen()
-    }
-    
-    func clearStorage() {
-        // Очищаем все куки из хранилища.
-        HTTPCookieStorage.shared.removeCookies(since: Date.distantPast)
-        // Запрашиваем все данные из локального хранилища.
-        WKWebsiteDataStore.default().fetchDataRecords(ofTypes: WKWebsiteDataStore.allWebsiteDataTypes()) { records in
-            // Массив полученных записей удаляем из хранилища.
-            records.forEach { record in
-                WKWebsiteDataStore.default().removeData(ofTypes: record.dataTypes, for: [record], completionHandler: {})
-            }
-        }
-    }
-    
-    func clearToken() {
-        swiftKeychainWrapper.deleteToken()
+    func setupUI() {
+        view.backgroundColor = .ypBlack
     }
 }
 
@@ -231,6 +219,7 @@ private extension ProfileViewController {
         nameLabel.text = "Екатерина Новикова"
         nameLabel.font = FontsConstants.ysDisplayBold
         nameLabel.textColor = .ypWhite
+        nameLabel.accessibilityIdentifier = "nameLabel"
         view.addSubview(nameLabel)
         
         let loginNameLabel = UILabel()
@@ -252,6 +241,7 @@ private extension ProfileViewController {
             target: self,
             action: #selector(didTapLogoutButton)
         )
+        logoutButton.accessibilityIdentifier = "logout_button"
         logoutButton.translatesAutoresizingMaskIntoConstraints = false
         logoutButton.tintColor = .ypRed
         view.addSubview(logoutButton)

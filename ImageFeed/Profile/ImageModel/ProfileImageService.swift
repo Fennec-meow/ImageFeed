@@ -27,7 +27,6 @@ final class ProfileImageService {
     private var task: URLSessionTask?
     private var lastToken: String?
     private var userResultURL: String? = nil
-    
 }
 
 // MARK: - Private Methods

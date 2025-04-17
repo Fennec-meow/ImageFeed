@@ -5,7 +5,6 @@
 //  Created by Kira on 24.03.2025.
 //
 
-import Foundation
 import UIKit
 
 // MARK: - ImagesListViewController
@@ -15,7 +14,6 @@ final class ImagesListService {
     // MARK: Singletone
     
     static let shared = ImagesListService()
-    //    private init() {}
     
     // MARK: Notification
     

@@ -8,11 +8,13 @@
 import UIKit
 import WebKit
 
-// MARK: - WebViewControllerDelegate
+// MARK: - WebViewControllerProtocol
 
-protocol WebViewControllerDelegate: AnyObject {
-    func webViewController(_ vc: WebViewController, didAuthenticateWithCode code: String)
-    func webViewControllerDidCancel(_ vc: WebViewController)
+protocol WebViewControllerProtocol: AnyObject {
+    var presenter: WebViewPresenterProtocol? { get set }
+    func load(request: URLRequest)
+    func setProgressValue(_ newValue: Float)
+    func setProgressHidden(_ isHidden: Bool)
 }
 
 // MARK: - WebViewController
@@ -27,6 +29,7 @@ final class WebViewController: UIViewController {
     // MARK: Public Property
     
     weak var delegate: WebViewControllerDelegate?
+    var presenter: WebViewPresenterProtocol?
     
     // MARK: Private Property
     
@@ -37,14 +40,15 @@ final class WebViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
-        loadAuthView()
-        updateProgress()
+        presenter?.viewDidLoad()
+        presenter?.didUpdateProgressValue(webView.estimatedProgress)
+        webView.accessibilityIdentifier = "UnsplashWebView"
     }
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         setupObservers()
-        updateProgress()
+        presenter?.didUpdateProgressValue(webView.estimatedProgress)
     }
     
     override func viewWillDisappear(_ animated: Bool) {
@@ -61,7 +65,7 @@ final class WebViewController: UIViewController {
         context: UnsafeMutableRawPointer?
     ) {
         if keyPath == #keyPath(WKWebView.estimatedProgress) {
-            updateProgress()
+            presenter?.didUpdateProgressValue(webView.estimatedProgress)
         } else {
             super.observeValue(
                 forKeyPath: keyPath,
@@ -72,11 +76,27 @@ final class WebViewController: UIViewController {
     }
 }
 
+// MARK: - WebViewControllerProtocol
+
+extension WebViewController: WebViewControllerProtocol {
+    func load(request: URLRequest) {
+        webView.load(request)
+    }
+    
+    func setProgressValue(_ newValue: Float) {
+        progressView.progress = newValue
+    }
+    
+    func setProgressHidden(_ isHidden: Bool) {
+        progressView.isHidden = isHidden
+    }
+}
+
 // MARK: - Private Methods
 
 private extension WebViewController {
     
-    @IBAction private func didTapBackButton(_ sender: Any?) {
+    @IBAction func didTapBackButton(_ sender: Any?) {
         delegate?.webViewControllerDidCancel(self)
     }
     
@@ -96,44 +116,6 @@ private extension WebViewController {
             context: nil
         )
     }
-    
-    func loadAuthView() {
-        guard var urlComponents = URLComponents(string: Constants.unsplashAuthorizeURLString) else {
-            return
-        }
-        
-        urlComponents.queryItems = [
-            URLQueryItem(name: "client_id", value: Constants.accessKey),
-            URLQueryItem(name: "redirect_uri", value: Constants.redirectURI),
-            URLQueryItem(name: "response_type", value: "code"),
-            URLQueryItem(name: "scope", value: Constants.accessScope)
-        ]
-        
-        guard let url = urlComponents.url else { return }
-        
-        let request = URLRequest(url: url)
-        webView.load(request)
-    }
-    
-    func updateProgress() {
-        progressView.progress = Float(webView.estimatedProgress)
-        progressView.isHidden = fabs(webView.estimatedProgress - 1.0) <= 0.0001
-    }
-    
-    func code(from navigationAction: WKNavigationAction) -> String? {
-        if
-            let url = navigationAction.request.url,
-            let urlComponents = URLComponents(string: url.absoluteString),
-            urlComponents.path == UrlConstants.urlComponentsPath,
-            let items = urlComponents.queryItems,
-            let codeItem = items.first(where: { $0.name == StringConstants.codeItem })
-        {
-            print("Code: \(String(describing: codeItem.value))\n")
-            return codeItem.value
-        } else {
-            return nil
-        }
-    }
 }
 
 // MARK: - WKNavigationDelegate
@@ -144,7 +126,7 @@ extension WebViewController: WKNavigationDelegate {
         decidePolicyFor navigationAction: WKNavigationAction,
         decisionHandler: @escaping (WKNavigationActionPolicy) -> Void
     ) {
-        if let code = code(from: navigationAction) {
+        if let code = presenter?.code(from: navigationAction) {
             delegate?.webViewController(self, didAuthenticateWithCode: code)
             decisionHandler(.cancel)
         } else {
@@ -162,8 +144,8 @@ private extension WebViewController {
             \.estimatedProgress,
              options: [],
              changeHandler: { [weak self] _, _ in
-                 guard let self = self else { return }
-                 self.updateProgress()
+                 guard let self else { return }
+                 presenter?.didUpdateProgressValue(webView.estimatedProgress)
              })
         
         webView.navigationDelegate = self
