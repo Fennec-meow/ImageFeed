@@ -13,7 +13,7 @@ struct Profile {
     let loginName: String
     let bio: String?
     
-    init(profileResult: ProfileResult) {
+     init(profileResult: ProfileResult) {
         self.userName = profileResult.username
         self.name = [profileResult.firstName, profileResult.lastName].compactMap { $0 }.joined(separator: " ")
         self.loginName = "@\(profileResult.username)"
