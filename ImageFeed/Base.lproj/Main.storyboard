@@ -19,7 +19,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <tableView clipsSubviews="YES" contentMode="scaleAspectFill" alwaysBounceVertical="YES" dataMode="prototypes" style="plain" separatorStyle="none" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="28" estimatedSectionHeaderHeight="-1" sectionFooterHeight="28" estimatedSectionFooterHeight="-1" translatesAutoresizingMaskIntoConstraints="NO" id="Jad-In-qQy">
-                                <rect key="frame" x="0.0" y="0.0" width="402" height="874"/>
+                                <rect key="frame" x="0.0" y="62" width="402" height="812"/>
                                 <color key="backgroundColor" name="YP Background"/>
                                 <prototypes>
                                     <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" selectionStyle="none" hidesAccessoryWhenEditing="NO" indentationLevel="1" indentationWidth="0.0" reuseIdentifier="ImagesListCell" rowHeight="234" id="n9L-0E-BRu" customClass="ImagesListCell" customModule="ImageFeed" customModuleProvider="target">
@@ -46,6 +46,9 @@
                                                     </constraints>
                                                     <inset key="imageEdgeInsets" minX="0.0" minY="0.0" maxX="2.2250738585072014e-308" maxY="0.0"/>
                                                     <state key="normal" image="like_button_on"/>
+                                                    <connections>
+                                                        <action selector="likeButtonClicked" destination="n9L-0E-BRu" eventType="touchUpInside" id="qUw-Ac-TYF"/>
+                                                    </connections>
                                                 </button>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="27 августа 2022" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="qZZ-Dd-Oci" userLabel="Date Label">
                                                     <rect key="frame" x="24.000000000000007" y="206" width="101.66666666666669" height="16"/>
@@ -86,7 +89,7 @@
                             <constraint firstItem="Jad-In-qQy" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leading" id="8K0-ia-JlF"/>
                             <constraint firstAttribute="trailing" secondItem="Jad-In-qQy" secondAttribute="trailing" id="HlM-9k-gvK"/>
                             <constraint firstAttribute="bottom" secondItem="Jad-In-qQy" secondAttribute="bottom" id="MH6-Qx-Met"/>
-                            <constraint firstItem="Jad-In-qQy" firstAttribute="top" secondItem="8bC-Xf-vdC" secondAttribute="top" id="vGp-vU-4aG"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="top" secondItem="Jad-In-qQy" secondAttribute="top" id="vPJ-3B-A0c"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" id="gWd-sH-6gt"/>
