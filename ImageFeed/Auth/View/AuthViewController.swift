@@ -7,12 +7,6 @@
 
 import UIKit
 
-// MARK: - AuthViewControllerDelegate
-
-protocol AuthViewControllerDelegate: AnyObject {
-    func authViewController(_ vc: AuthViewController, didAuthenticateWithCode code: String)
-}
-
 // MARK: - AuthViewController
 
 final class AuthViewController: UIViewController {
@@ -40,7 +34,14 @@ final class AuthViewController: UIViewController {
         if segue.identifier == showWebViewSegueIdentifier {
             guard
                 let webViewController = segue.destination as? WebViewController
-            else { return }
+            else {
+                assertionFailure("Не удалось подготовиться к \(showWebViewSegueIdentifier)")
+                return
+            }
+            let authHelper = AuthHelper()
+            let webViewPresenter = WebViewPresenter(authHelper: authHelper)
+            webViewController.presenter = webViewPresenter
+            webViewPresenter.view = webViewController
             webViewController.delegate = self
         } else {
             super.prepare(for: segue, sender: sender)
